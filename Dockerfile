@@ -17,8 +17,19 @@ RUN bun install --frozen-lockfile
 COPY . .
 
 # ---- production builder ----
-FROM builder AS production-builder
-RUN bun run build
+FROM node:24-bookworm AS production-builder
+
+ARG NEXT_PUBLIC_BACKEND_URL
+ARG NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+ARG NEXT_PUBLIC_CLERK_SIGN_IN_URL
+
+ENV NEXT_PUBLIC_BACKEND_URL=$NEXT_PUBLIC_BACKEND_URL
+ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+ENV NEXT_PUBLIC_CLERK_SIGN_IN_URL=$NEXT_PUBLIC_CLERK_SIGN_IN_URL
+
+WORKDIR /app
+COPY --from=builder /app ./
+RUN npm run build
 
 # ---- development ----
 FROM builder AS development
