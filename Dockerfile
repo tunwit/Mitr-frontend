@@ -20,6 +20,10 @@ COPY . .
 FROM builder AS production-builder
 RUN bun run build
 
+# ---- development ----
+FROM builder AS development
+CMD ["bun", "run", "dev"]
+
 # ---- runner ----
 FROM node:24-bookworm AS runner
 
@@ -38,7 +42,3 @@ USER appuser
 
 EXPOSE 3000
 CMD ["node", "server.js"]
-
-# ---- development ----
-FROM builder AS development
-CMD ["bun", "run", "dev"]

@@ -1,12 +1,20 @@
 services:
   frontend:
-    image: littlebirdd/mitr-frontend:latest
+    build:
+      context: .
+      target: development
     container_name: mitr-frontend-api
     ports:
       - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
     env_file:
       - .env
-    restart: always
+    environment:
+      WATCHPACK_POLLING: "true"
+      CHOKIDAR_USEPOLLING: "true"
     networks:
       - mitr-network
 
