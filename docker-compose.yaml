@@ -1,6 +1,8 @@
 services:
   frontend:
-    build: .
+    build:
+      context: .
+      target: development
     container_name: mitr-frontend-api
     ports:
       - "3000:3000"
