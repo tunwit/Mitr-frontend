@@ -50,8 +50,10 @@ jobs:
           script: |
             set -e
             cd /opt/mitr/frontend
+            export IMAGE_TAG=${{ github.sha }}
+            docker network inspect mitr-network >/dev/null 2>&1 || docker network create mitr-network
             docker compose pull
-            docker compose up -d
+            docker compose up -d --remove-orphans --wait --wait-timeout 60
 
   notify-success:
     needs: deploy
@@ -84,7 +86,7 @@ jobs:
               "fields": [
                 {
                   "name": "🌐 App URL",
-                  "value": "[Open App](https://icpc.cs.sci.ku.ac.th/2026)",
+                  "value": "[Open App](${{ vars.APP_URL }})",
                   "inline": true
                 },
                 {

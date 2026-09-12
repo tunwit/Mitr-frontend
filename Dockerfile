@@ -29,7 +29,9 @@ ENV NEXT_PUBLIC_CLERK_SIGN_IN_URL=$NEXT_PUBLIC_CLERK_SIGN_IN_URL
 
 WORKDIR /app
 COPY --from=builder /app ./
-RUN npm run build
+RUN test -n "$NEXT_PUBLIC_BACKEND_URL" \
+  && test -n "$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY" \
+  && npm run build
 
 # ---- development ----
 FROM builder AS development
@@ -48,6 +50,9 @@ RUN addgroup --system appgroup \
 COPY --from=production-builder --chown=appuser:appgroup /app/public ./public
 COPY --from=production-builder --chown=appuser:appgroup /app/.next/standalone ./
 COPY --from=production-builder --chown=appuser:appgroup /app/.next/static ./.next/static
+
+RUN mkdir -p /app/.next/cache \
+  && chown -R appuser:appgroup /app/.next
 
 USER appuser
 
