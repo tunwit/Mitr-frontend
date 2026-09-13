@@ -1,4 +1,5 @@
-import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
+import { getToken } from "@clerk/nextjs";
+import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 
 interface FetchProps<TBody = any> {
   endpoint: string;
@@ -22,6 +23,7 @@ export const fetchwithauth = async ({
 }: FetchProps) => {
   const isFormData = body instanceof FormData;
   const cookieHeader = cookie?.toString();
+  const token = typeof window === "undefined" ? null : await getToken();
 
   const options: RequestInit = {
     method,
@@ -32,6 +34,7 @@ export const fetchwithauth = async ({
         : { "Content-Type": "application/json" }),
 
       ...(cookieHeader ? { Cookie: cookieHeader } : {}),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     body:
       body && method !== "GET"
