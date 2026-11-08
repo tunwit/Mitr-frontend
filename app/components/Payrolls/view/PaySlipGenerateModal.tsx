@@ -115,13 +115,7 @@ export default function PaySlipGenerateModal({
             </button>
           </div>
 
-          {/* Info Banner */}
-          <div className="px-6 py-3 bg-blue-50 border-b border-blue-100">
-            <p className="text-sm text-blue-900">
-              <strong>{t("note")}: </strong>
-              {t("note_content")}
-            </p>
-          </div>
+          
 
           {/* Content */}
           <div className="p-6 overflow-y-auto max-h-[calc(90vh-240px)]">

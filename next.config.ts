@@ -3,7 +3,8 @@ import createNextIntlPlugin from "next-intl/plugin";
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  cacheComponents: true,
+  // Next.js Cache Components rely on timer behavior that is not guaranteed under Bun.
+  cacheComponents: false,
   partialPrefetching: false,
   webpack(config, { dev }) {
     if (dev) {

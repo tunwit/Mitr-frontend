@@ -116,7 +116,8 @@ export default function ContractForm({ setCurrentPage }: ContractFormProps) {
           />
         </div>
         <div className="col-span-2">
-          <InputForm
+          <InputForm control={control} name="bankBranchCode" label={t("fields.bank_branch_code")} />
+              <InputForm
             control={control}
             name="bankAccountOwner"
             label={t("fields.bank_account_owner")}

@@ -31,13 +31,16 @@ function getField(shopId: number | null, type: COMPEN_FIELD_DEFINATION_TYPE) {
   });
 }
 
-export const useCompensationField = (type: COMPEN_FIELD_DEFINATION_TYPE) => {
+export const useCompensationField = (
+  type: COMPEN_FIELD_DEFINATION_TYPE,
+  enabled = true,
+) => {
   const { id: shopId } = useCurrentShop();
 
   const query = useQuery<ApiResponse<CompensationFieldPublicDTO[]>>({
     queryKey: ["compensation", type.toString(), shopId],
     queryFn: () => getField(shopId, type),
-    enabled: shopId != null,
+    enabled: shopId != null && enabled,
     refetchOnWindowFocus: false,
     staleTime: 1000 * 60 * 5,
   });

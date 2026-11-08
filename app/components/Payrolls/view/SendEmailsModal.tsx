@@ -288,20 +288,6 @@ export default function SendEmailsModal({
             </button>
           </div>
 
-          {/* Info Banner */}
-          <div className="px-6 py-3 bg-purple-50 border-b border-purple-100">
-            <div className="flex items-start gap-2">
-              <Icon
-                icon="mdi:information-outline"
-                className="text-purple-600 mt-0.5"
-                fontSize={16}
-              />
-              <p className="text-sm text-purple-900">
-                <strong>{t("tip")}: </strong> {t("tip_content")}
-              </p>
-            </div>
-          </div>
-
           {/* Override Warning Banner */}
           {overrideCount > 0 && (
             <div className="px-6 py-3 bg-orange-50 border-b border-orange-100">

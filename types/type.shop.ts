@@ -1,3 +1,5 @@
+import type { ScbSettings, ShopPaymentAccount } from "./type.scb";
+
 export enum SEND_EMAIL_METHOD {
   SMTP = "SMTP",
   RESEND = "RESEND",
@@ -11,6 +13,8 @@ export type ShopPublicDTO = {
 };
 
 export type ShopConfigDTO = ShopPublicDTO & {
+  scbPaymentSettings: ScbSettings | null;
+  paymentAccounts: ShopPaymentAccount[];
   taxId: string;
   avatar: string | null;
   avatarUrl: string | null;
@@ -35,6 +39,8 @@ export type NewShopDTO = {
 };
 
 export type UpdateShopDataDTO = Partial<{
+  scbPaymentSettings: ScbSettings;
+  paymentAccounts: ShopPaymentAccount[];
   name: string;
   avatar: string | null;
 

@@ -23,6 +23,7 @@ import normalizeNull from "@/utils/normallizeNull";
 import { showError, showSuccess } from "@/utils/showSnackbar";
 import { useUser } from "@clerk/nextjs";
 import EmployeeDetailsDocuments from "./documentsTab/EmployeeDetailsDocuments";
+import EmployeePayrollDefaults from "./EmployeePayrollDefaults";
 import { useTranslations } from "next-intl";
 import ChangableAvatar from "@/widget/ChangableAvatar";
 import { useCurrentShop } from "@/hooks/shop/useCurrentShop";
@@ -47,10 +48,12 @@ export default function EmployeeDetailsModal({
   const { data, isLoading } = useEmployee(employeeId);
   const [status, setStatus] = useState<EMPLOYEE_STATUS | undefined>(undefined);
   const [preview, setPreview] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<string | number>(0);
   const queryClient = useQueryClient();
   const { user } = useUser();
   const { id: shopId } = useCurrentShop();
   const t = useTranslations("employees");
+  const td = useTranslations("employee_payroll_defaults");
   const { mutateAsync: updateMutate } = useUpdateEmployee();
   const { mutateAsync: changeAvatarMutate } = useChangeEmployeeAvatar();
 
@@ -115,6 +118,7 @@ export default function EmployeeDetailsModal({
           : undefined,
         bankName: employee.bankName,
         bankAccountNumber: employee.bankAccountNumber,
+        bankBranchCode: employee.bankBranchCode,
         bankAccountOwner: employee.bankAccountOwner,
         promtpay: employee.promtpay,
         status: employee.status,
@@ -215,12 +219,19 @@ export default function EmployeeDetailsModal({
     }
   };
 
-  if (isLoading || !employee) return <p>loading</p>;
+  if (isLoading || !employee || employee.id !== employeeId)
+    return <p>loading</p>;
   return (
     <>
       <Modal open={open} onClose={() => setOpen(false)} sx={{ zIndex: 100 }}>
         <ModalDialog
-          sx={{ background: "#fafafa", overflow: "scroll", width: "70%" }}
+          sx={{
+            background: "#fafafa",
+            overflowY: "auto",
+            maxHeight: "90dvh",
+            width: { xs: "calc(100% - 24px)", md: "70%" },
+            maxWidth: 1100,
+          }}
         >
           <ModalClose />
           <div className="flex flex-row justify-between items-center ">
@@ -255,26 +266,32 @@ export default function EmployeeDetailsModal({
               </div>
             </div>
             <div className="ml-auto">
-              <Button
-                disabled={!isDirty}
-                onClick={handleSubmit(onSave)}
-                startDecorator={<Icon icon={"material-symbols:save"} />}
-                sx={{ fontSize: "12px", gap: 0 }}
-                size="sm"
-                variant="outlined"
-              >
-                {t("actions.save")}
-              </Button>
+              {activeTab === 0 && (
+                <Button
+                  disabled={!isDirty}
+                  onClick={handleSubmit(onSave)}
+                  startDecorator={<Icon icon={"material-symbols:save"} />}
+                  sx={{ fontSize: "12px", gap: 0 }}
+                  size="sm"
+                  variant="outlined"
+                >
+                  {t("actions.save")}
+                </Button>
+              )}
             </div>
           </div>
 
           <Tabs
             aria-label="Basic tabs"
-            defaultValue={0}
+            value={activeTab}
+            onChange={(_, value) => {
+              if (value !== null) setActiveTab(value);
+            }}
             orientation="horizontal"
           >
             <TabList
               sx={{
+                flexWrap: "wrap",
                 [`& .${tabClasses.root}`]: {
                   fontSize: "sm",
                   fontWeight: "lg",
@@ -289,6 +306,7 @@ export default function EmployeeDetailsModal({
             >
               <Tab>{t("tabs.details")}</Tab>
               <Tab>{t("tabs.documents")}</Tab>
+              <Tab>{td("tab")}</Tab>
             </TabList>
             <TabPanel value={0}>
               <FormProvider {...methods}>
@@ -300,6 +318,13 @@ export default function EmployeeDetailsModal({
                 title="Personal Documents"
                 tag="personal"
                 employeeId={employee?.id}
+              />
+            </TabPanel>
+            <TabPanel value={2} keepMounted>
+              <EmployeePayrollDefaults
+                key={`${shopId}-${employee.id}`}
+                employeeId={employee.id}
+                enabled={open}
               />
             </TabPanel>
           </Tabs>

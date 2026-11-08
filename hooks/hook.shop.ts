@@ -64,7 +64,7 @@ export const useShopData = () => {
 export const useShopConfigs = () => {
   const { id: shopId } = useCurrentShop();
   const query = useQuery<ApiResponse<ShopConfigDTO>>({
-    queryKey: ["shop", "config", shopId],
+    queryKey: ["shop", "config", shopId, "payment-accounts-v3"],
     queryFn: () =>
       fetchwithauth({
         endpoint: `/shops/${shopId}?configs=true`,
@@ -93,6 +93,7 @@ export function useUpdateShop() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["shop", "data", shopId] });
       queryClient.invalidateQueries({ queryKey: ["shop", "config", shopId] });
+      queryClient.invalidateQueries({ queryKey: ["scb-payment", shopId] });
     },
   });
 }

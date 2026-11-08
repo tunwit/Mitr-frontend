@@ -11,10 +11,11 @@ export const contractSchema = z.object({
   bankAccountNumber: z
     .string()
     .trim()
-    .length(10, "Account number must be exactly 10 digits")
+    .min(1, "Account number is required").max(25, "Account number must not exceed 25 digits")
     .regex(/^\d+$/, "Account number must contain only numbers")
     .optional()
     .or(z.literal("")),
+  bankBranchCode: z.string().trim().regex(/^\d{4}$/, "Branch code must be exactly 4 digits").optional().or(z.literal("")),
   bankAccountOwner: z
     .string()
     .trim()

@@ -41,6 +41,7 @@ export type EmployeeDetailedDTO = {
   bankName: string | null;
   bankAccountOwner: string | null;
   bankAccountNumber: string | null;
+  bankBranchCode: string | null;
   promtpay: string | null;
   branch: BranchPublicDTO;
   status: EMPLOYEE_STATUS;
@@ -50,6 +51,7 @@ export type EmployeePaymentDTO = {
   bankName: string | null;
   bankAccountOwner: string | null;
   bankAccountNumber: string | null;
+  bankBranchCode: string | null;
   promtpay: string | null;
 };
 
@@ -64,6 +66,7 @@ export type NewEmployeeDTO = {
   bankName?: string | undefined;
   bankAccountOwner?: string | undefined;
   bankAccountNumber?: string | undefined;
+  bankBranchCode?: string | undefined;
   promtpay?: string | undefined;
   branchId: number;
   status: EMPLOYEE_STATUS;
@@ -102,4 +105,7 @@ export type EmployeeStatsDTO = {
     FEMALE: number;
     OTHER: number;
   };
+};
+export type EmployeePayrollDefaultsDTO = {
+  items: { fieldId: number; amount: string }[];
 };

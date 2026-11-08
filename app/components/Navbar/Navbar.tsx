@@ -14,7 +14,13 @@ export default function Navbar() {
         <button onClick={sidebarState}>
           <HambergerIcon className="text-white text-2xl" />
         </button>
-        <Image alt="logo" src="/logo-text.png" width={80} height={80} />
+        <Image
+          alt="logo"
+          src="/logo-text.png"
+          width={80}
+          height={80}
+          style={{ height: "auto" }}
+        />
         {/* <span className="text-white text-xl font-semibold">Mitr</span> */}
       </div>
       <div className="flex gap-5">

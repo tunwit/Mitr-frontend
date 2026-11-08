@@ -1,375 +1,287 @@
 "use client";
-import Breadcrumbs from "@/widget/Breadcrumbs";
-import { SearchInput } from "@/widget/Input";
-import Button from "@mui/joy/Button";
-import { Icon } from "@iconify/react/dist/iconify.js";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, usePathname, useRouter } from "next/navigation";
-import { useCheckBox } from "@/hooks/useCheckBox";
-import { dateFormat, moneyFormat } from "@/utils/formmatter";
-import UsersIcon from "@/assets/icons/UsersIcon";
+import { useTranslations } from "next-intl";
 import { useDebounce } from "use-debounce";
-import { Modal, ModalDialog } from "@mui/joy";
-import { PAY_PERIOD_STATUS_LABELS } from "@/types/enum/enumLabel";
-import { PAY_PERIOD_STATUS } from "@/types/enum/enum";
-import { motion, AnimatePresence } from "framer-motion";
+import {
+  ArrowLeft,
+  CalendarDays,
+  CreditCard,
+  FileDown,
+  Search,
+  SlidersHorizontal,
+  Users,
+} from "lucide-react";
+import Breadcrumbs from "@/widget/Breadcrumbs";
 import AdvancedFilters from "@/widget/payroll/AdvancedFilters";
 import PaymentCard from "@/app/components/Payrolls/payment/PaymentCard";
-import { useTranslations } from "next-intl";
+import ScbPaymentPanel from "@/app/components/Payrolls/payment/ScbPaymentPanel";
+import { dateFormat, moneyFormat } from "@/utils/formmatter";
 import { useCurrentShop } from "@/hooks/shop/useCurrentShop";
 import { usePeriod } from "@/hooks/payroll/period/hook.period";
-import { EntryBreakDownDTO } from "@/types/type.entry";
+import { PAY_PERIOD_STATUS_LABELS } from "@/types/enum/enumLabel";
+import { PAY_PERIOD_STATUS } from "@/types/enum/enum";
 
-export default function Home() {
-  const methods = useCheckBox<number>("payrollRecordTable");
+export default function PaymentPage() {
   const router = useRouter();
-  const [showFilter, setShowFilter] = useState(false);
   const { periodId } = useParams();
-  const [selectedTab, setSelectedTab] = useState("manual");
-  const [query, setQuery] = useState("");
-  const [debouced] = useDebounce(query, 500);
-  const [filtered, setFiltered] = useState<EntryBreakDownDTO[]>([]);
   const pathname = usePathname();
-  const tPeriod = useTranslations("period");
+  const { name, slug } = useCurrentShop();
   const tp = useTranslations("payment_payroll");
+  const tPeriod = useTranslations("period");
   const tBreadcrumb = useTranslations("breadcrumb");
-  const tc = useTranslations("common");
-
-  const [hideHeader, setHideHeader] = useState(false);
-  const { name } = useCurrentShop();
-
-  const { data: periodData, isLoading: loadingPeriod } = usePeriod(
-    Number(periodId),
-  ).getContextWithPayment;
-
-  // if (error || !periodId) {
-  //   const basePath = pathname.replace(/\/payment$/, "");
-  //   router.replace(basePath);
-  // }
-
+  const scb = useTranslations("scb");
+  const [selectedTab, setSelectedTab] = useState<"manual" | "file">("manual");
+  const [showFilter, setShowFilter] = useState(false);
+  const [query, setQuery] = useState("");
+  const [debounced] = useDebounce(query, 300);
+  const [advancedIds, setAdvancedIds] = useState<number[] | null>(null);
+  const {
+    data: periodData,
+    isLoading,
+    isError,
+    refetch,
+  } = usePeriod(Number(periodId)).getContextWithPayment;
+  const period = periodData?.data;
   useEffect(() => {
-    if (!periodData?.data) return;
-    if (periodData?.data?.status === PAY_PERIOD_STATUS.DRAFT) {
-      const newPath = pathname.replace("/payment", "/edit");
-      router.push(`${newPath}`);
-    }
-  }, [periodData]);
+    if (period?.status === PAY_PERIOD_STATUS.DRAFT)
+      router.replace(pathname.replace(/\/payment$/, "/edit"));
+  }, [period?.status, pathname, router]);
+  const filtered = useMemo(() => {
+    const search = debounced.trim().toLowerCase();
+    return (period?.breakdowns ?? []).filter(({ entry }) => {
+      if (advancedIds && !advancedIds.includes(entry.id)) return false;
+      const employee = entry.employee.snapshot;
+      return [
+        employee.firstName,
+        employee.lastName,
+        `${employee.firstName} ${employee.lastName}`,
+        employee.firstName + employee.lastName,
+        employee.nickName,
+        employee.branch.name,
+        employee.branch.nameEng,
+      ].some((value) => value.toLowerCase().includes(search));
+    });
+  }, [period?.breakdowns, debounced, advancedIds]);
 
-  useEffect(() => {
-    if (!periodData?.data) return;
-    const q = debouced.toLowerCase();
-
-    setFiltered(
-      periodData.data.breakdowns.filter((b) => {
-        const entry = b.entry;
-        return (
-          entry.employee.snapshot.firstName.toLowerCase().includes(q) ||
-          entry.employee.snapshot.lastName.toLowerCase().includes(q) ||
-          (entry.employee.snapshot.firstName + entry.employee.snapshot.lastName)
-            .toLowerCase()
-            .includes(q) ||
-          entry.employee.snapshot.nickName.toLowerCase().includes(q) ||
-          entry.employee.snapshot.branch.name.toLowerCase().includes(q) ||
-          entry.employee.snapshot.branch.nameEng.toLowerCase().includes(q)
-        );
-      }),
-    );
-  }, [periodData?.data, debouced]);
-
-  const isLoading = loadingPeriod;
-
-  let loadingMessage = tc("load.preparing");
-  if (loadingPeriod) loadingMessage = tPeriod("load.loading_payrolls");
   return (
-    <main className=" w-full bg-gray-100 font-medium ">
-      <title>Payment - Eslip</title>
-      <Modal open={isLoading}>
-        <ModalDialog>
-          <div className="flex flex-col items-center justify-center">
-            <Icon
-              icon={"mynaui:spinner"}
-              className="animate-spin"
-              fontSize={50}
-            />
-
-            <p> {loadingMessage}</p>
-          </div>
-        </ModalDialog>
-      </Modal>
-      <div className="flex flex-col h-full bg-white">
-        <AnimatePresence initial={false}>
-          {!hideHeader && (
-            <motion.div
-              key="header"
-              initial={{ height: 0, opacity: 0, y: -20 }}
-              animate={{ height: "auto", opacity: 1, y: 0 }}
-              exit={{ height: 0, opacity: 0, y: -20 }}
-              transition={{ duration: 0.35, ease: "easeInOut" }}
-              className="overflow-hidden relative"
-            >
-              <section className="px-10 pb-5 bg-white w-full border-b border-gray-200 sticky top-0">
-                <Breadcrumbs
-                  className="pt-10"
-                  items={[
-                    { label: name },
-                    { label: tBreadcrumb("dashboard") },
-                    { label: tBreadcrumb("payrolls") },
-                    { label: tBreadcrumb("payment_payroll") },
-                  ]}
-                />
-                <div className="mt-3 flex flex-row justify-between items-center  text-black text-4xl font-bold">
-                  <p>{periodData?.data?.name}</p>
-                  <Button
-                    sx={{ height: 40 }}
-                    startDecorator={
-                      <Icon icon="lets-icons:back-light" fontSize={20} />
-                    }
-                    color="neutral"
-                    variant="outlined"
-                    onClick={() => {
-                      router.back();
-                    }}
-                  >
-                    {tp("actions.back")}
-                  </Button>
-                </div>
-
-                <section className="grid grid-cols-4 gap-4 mt-5">
-                  <div className="bg-blue-50 from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-blue-700 font-medium">
-                          {tPeriod("fields.status")}
-                        </p>
-                        <p className="text-xl font-bold text-blue-900 mt-1">
-                          {tPeriod(
-                            `status.${PAY_PERIOD_STATUS_LABELS[periodData?.data?.status ?? PAY_PERIOD_STATUS.DRAFT]?.toLowerCase()}`,
-                          )}
-                        </p>
-                      </div>
-                      <div className="bg-blue-200 p-2 rounded-lg">
-                        <Icon
-                          icon={"mdi:clock-outline"}
-                          className="text-blue-700"
-                          fontSize={20}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-purple-50 from-purple-50 to-purple-100 rounded-lg p-4 border border-purple-200">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-purple-700 font-medium">
-                          {tPeriod("fields.employees")}
-                        </p>
-                        <p className="text-xl font-bold text-purple-900 mt-1">
-                          {periodData?.data?.employeeCount}
-                        </p>
-                      </div>
-                      <div className="bg-purple-200 p-2 rounded-lg">
-                        <UsersIcon className="text-purple-700 text-xl" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-green-50 from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-green-700 font-medium">
-                          {tPeriod("fields.grand_total")}
-                        </p>
-                        <p className="text-xl font-bold text-green-900 mt-1">
-                          {moneyFormat(periodData?.data?.netPay || 0)}
-                        </p>
-                      </div>
-                      <div className="bg-green-200 p-2 rounded-lg">
-                        <Icon
-                          icon="tabler:currency-baht"
-                          className="text-green-700 text-xl"
-                          fontSize={20}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-orange-50 from-orange-50 to-orange-100 rounded-lg p-4 border border-orange-200">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-orange-700 font-medium">
-                          {tPeriod("fields.period")}
-                        </p>
-                        <p className="text-xl font-bold text-orange-900 mt-1">
-                          {dateFormat(
-                            new Date(periodData?.data?.start_period || 0),
-                          )}{" "}
-                          {" - "}
-                          {dateFormat(
-                            new Date(periodData?.data?.end_period || 0),
-                          )}
-                        </p>
-                      </div>
-                      <div className="bg-orange-200 p-2 rounded-lg">
-                        <Icon
-                          icon="solar:calendar-outline"
-                          className="text-orange-700 text-xl"
-                          fontSize={20}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </section>
-                <button
-                  className="flex w-full items-center justify-center mt-4"
-                  onClick={() => setHideHeader(!hideHeader)}
-                >
-                  <Icon icon="icon-park-outline:up" fontSize={20} />
-                </button>
-              </section>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <div className="flex flex-1 flex-col h-full gap-5 items-center overflow-y-scroll">
-          <div hidden={!hideHeader} className={` py-3 sticky top-0`}>
+    <main className="h-full min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain bg-slate-50 text-slate-900 selection:bg-blue-100">
+      <title>{`${tp("label")} - Mitr`}</title>
+      <div className="mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-7 lg:px-10 lg:py-8">
+        <Breadcrumbs
+          items={[
+            { label: name },
+            { label: tBreadcrumb("payrolls"), href: `/${slug}/periods` },
+            { label: tBreadcrumb("payment_payroll") },
+          ]}
+        />
+        <header className="mt-5 border-b border-slate-200 pb-6">
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-3">
+                <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+                  {tp("label")}
+                </h1>
+                {period && (
+                  <span className="inline-flex rounded-full bg-slate-200/70 px-2.5 py-1 text-xs font-medium text-slate-700">
+                    {tPeriod(
+                      `status.${PAY_PERIOD_STATUS_LABELS[period.status]?.toLowerCase()}`,
+                    )}
+                  </span>
+                )}
+              </div>
+              <p className="mt-2 break-words text-sm text-slate-600">
+                {period?.name ?? scb("loading")}
+              </p>
+            </div>
             <button
-              className={`flex w-full items-center justify-center rotate-180  transition-all `}
-              onClick={() => setHideHeader(!hideHeader)}
+              type="button"
+              onClick={() => router.back()}
+              className="inline-flex shrink-0 items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-blue-600"
             >
-              <Icon icon="icon-park-outline:up" fontSize={20} />
+              <ArrowLeft size={16} aria-hidden />
+              {tp("actions.back")}
             </button>
           </div>
-          <div className={`w-fit ${!hideHeader && "mt-4"}`}>
-            <section className="flex w-full justify-center items-center ">
-              <div className="flex gap-5 flex-col lg:flex-row w-full">
-                <button
-                  onClick={() => setSelectedTab("manual")}
-                  className={`p-6 rounded-xl border-2 transition-all w-[50%] ${
-                    selectedTab === "manual"
-                      ? "border-blue-500 bg-blue-50 shadow-md"
-                      : "border-gray-200 bg-white hover:border-gray-300"
-                  }`}
-                >
-                  <div className="flex items-start gap-4">
-                    <div
-                      className={`p-3 rounded-lg ${selectedTab === "manual" ? "bg-blue-500" : "bg-gray-100"}`}
-                    >
-                      <Icon
-                        icon="famicons:card-outline"
-                        className={`w-6 h-6 ${selectedTab === "manual" ? "text-white" : "text-gray-600"}`}
-                        fontSize={24}
-                      />
-                    </div>
-                    <div className="text-left flex-1">
-                      <h3 className="font-semibold text-lg text-gray-900">
-                        {tp("tabs.manual.label")}
-                      </h3>
-                      <p className="text-sm text-gray-600 mt-1">
-                        {tp("tabs.manual.description")}
-                      </p>
-                      <div className="flex gap-2 mt-3">
-                        <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">
-                          {tp("tabs.manual.chips.bank_transfer")}
-                        </span>
-                        <span className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full">
-                          {tp("tabs.manual.chips.promptpay")}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </button>
-
-                <button
-                  onClick={() => setSelectedTab("file")}
-                  className={`p-6 rounded-xl border-2 transition-all w-[50%] ${
-                    selectedTab === "file"
-                      ? "border-green-500 bg-green-50 shadow-md"
-                      : "border-gray-200 bg-white hover:border-gray-300"
-                  }`}
-                >
-                  <div className="flex items-start gap-4">
-                    <div
-                      className={`p-3 rounded-lg ${selectedTab === "file" ? "bg-green-500" : "bg-gray-100"}`}
-                    >
-                      <Icon
-                        icon="mage:file-3"
-                        className={`w-6 h-6 ${selectedTab === "file" ? "text-white" : "text-gray-600"}`}
-                        fontSize={24}
-                      />
-                    </div>
-                    <div className="text-left flex-1">
-                      <h3 className="font-semibold text-lg text-gray-900">
-                        {tp("tabs.generate.label")}
-                      </h3>
-                      <p className="text-sm text-gray-600 mt-1">
-                        {tp("tabs.generate.description")}
-                      </p>
-                      <div className="flex gap-2 mt-3">
-                        <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">
-                          {tp("tabs.generate.chips.text_file")}
-                        </span>
-                        <span className="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full">
-                          {tp("tabs.generate.chips.web")}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </button>
+          {period && (
+            <dl className="mt-5 flex flex-wrap items-center gap-x-7 gap-y-3 text-sm">
+              <div className="flex items-center gap-2 text-slate-600">
+                <CalendarDays size={16} aria-hidden />
+                <dt className="sr-only">{tPeriod("fields.period")}</dt>
+                <dd>
+                  {dateFormat(new Date(period.start_period))} –{" "}
+                  {dateFormat(new Date(period.end_period))}
+                </dd>
               </div>
-            </section>
-            <section className="flex-1">
-              <div className="mt-3 flex flex-col justify-between p-4  bg-white border border-gray-200  rounded-md">
-                <div className="flex flex-row justify-between h-10">
-                  <div className="flex flex-row gap-3 h-full">
-                    <div className="w-96 ">
-                      <SearchInput
-                        type="text"
-                        placeholder={tPeriod("search.placeholder")}
-                        onChange={(e) => setQuery(e.target.value)}
-                        className="h-full"
-                        stretch
-                      />
-                    </div>
-                    <button
-                      className="text-gray-700 border border-gray-300 rounded-md px-4 hover:bg-gray-50"
-                      onClick={() => setShowFilter(!showFilter)}
-                    >
-                      <span className="flex items-center gap-1">
-                        <Icon icon={"mdi:filter-outline"} fontSize={18} />{" "}
-                        <p className="font-light text-sm">
-                          {tPeriod("filters.label")}
-                        </p>
-                      </span>
-                    </button>
-                  </div>
-                </div>
-                <AdvancedFilters
-                  periodId={Number(periodId) || -1}
-                  show={showFilter}
-                  setShow={setShowFilter}
-                  context={periodData?.data}
-                  onApply={(filteredBreakdowns) => {
-                    setFiltered(filteredBreakdowns);
-                  }}
-                />
+              <div className="flex items-center gap-2 text-slate-600">
+                <Users size={16} aria-hidden />
+                <dt>{tPeriod("fields.employees")}</dt>
+                <dd className="font-medium text-slate-900">
+                  {period.employeeCount}
+                </dd>
               </div>
-            </section>
-            <section className="space-y-3 my-3">
-              {filtered?.map((b) => {
+              <div className="flex items-baseline gap-2">
+                <dt className="text-slate-600">
+                  {tPeriod("fields.grand_total")}
+                </dt>
+                <dd className="font-semibold tabular-nums text-slate-900">
+                  ฿{moneyFormat(period.netPay)}
+                </dd>
+              </div>
+            </dl>
+          )}
+        </header>
+        {isLoading && (
+          <div
+            role="status"
+            className="animate-pulse space-y-4 py-8 motion-reduce:animate-none"
+          >
+            <p>{scb("loading")}</p>
+            <div className="h-14 rounded-lg bg-slate-200" />
+            <div className="h-48 rounded-xl bg-slate-200/60" />
+          </div>
+        )}
+        {isError && (
+          <div role="alert" className="py-8 text-red-700">
+            {scb("loadError")}{" "}
+            <button onClick={() => refetch()} className="underline">
+              {scb("retry")}
+            </button>
+          </div>
+        )}
+        {period && (
+          <>
+            <div
+              className="mt-6 flex gap-1 border-b border-slate-200"
+              role="tablist"
+              aria-label={tp("label")}
+            >
+              {(["manual", "file"] as const).map((tab) => {
+                const Icon = tab === "manual" ? CreditCard : FileDown;
+                const selected = selectedTab === tab;
                 return (
-                  <PaymentCard
-                    key={b.entry.id}
-                    periodId={Number(periodId)}
-                    breakdown={b}
-                    paymentDetails={
-                      periodData!.data!.paymentsByEntryId[b.entry.id]
-                    }
-                  />
+                  <button
+                    type="button"
+                    key={tab}
+                    id={`payment-tab-${tab}`}
+                    role="tab"
+                    aria-selected={selected}
+                    aria-controls={`payment-panel-${tab}`}
+                    tabIndex={selected ? 0 : -1}
+                    onClick={() => setSelectedTab(tab)}
+                    onKeyDown={(event) => {
+                      if (
+                        ["ArrowLeft", "ArrowRight", "Home", "End"].includes(
+                          event.key,
+                        )
+                      ) {
+                        event.preventDefault();
+                        const next =
+                          event.key === "Home"
+                            ? "manual"
+                            : event.key === "End"
+                              ? "file"
+                              : tab === "manual"
+                                ? "file"
+                                : "manual";
+                        setSelectedTab(next);
+                        document.getElementById(`payment-tab-${next}`)?.focus();
+                      }
+                    }}
+                    className={`-mb-px inline-flex items-center gap-2.5 border-b-2 px-4 py-3.5 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-blue-600 ${selected ? "border-blue-600 text-blue-700" : "border-transparent text-slate-600 hover:border-slate-300 hover:text-slate-900"}`}
+                  >
+                    <Icon size={18} aria-hidden />
+                    {tp(
+                      tab === "manual"
+                        ? "tabs.manual.label"
+                        : "tabs.generate.label",
+                    )}
+                  </button>
                 );
               })}
+            </div>
+            <p className="mt-4 text-sm text-slate-600">
+              {tp(
+                selectedTab === "manual"
+                  ? "tabs.manual.description"
+                  : "tabs.generate.description",
+              )}
+            </p>
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+              <label className="flex min-w-0 flex-1 items-center gap-2.5 rounded-lg border border-slate-300 bg-white px-3 py-2.5 sm:max-w-md focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600">
+                <Search
+                  size={18}
+                  className="shrink-0 text-slate-500"
+                  aria-hidden
+                />
+                <span className="sr-only">{tPeriod("search.placeholder")}</span>
+                <input
+                  type="search"
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder={tPeriod("search.placeholder")}
+                  className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-slate-500"
+                />
+              </label>
+              <button
+                type="button"
+                aria-expanded={showFilter}
+                aria-controls="payment-filters"
+                onClick={() => setShowFilter(!showFilter)}
+                className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2.5 text-sm focus-visible:outline-2 focus-visible:outline-blue-600 ${showFilter ? "border-blue-300 bg-blue-50 text-blue-800" : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"}`}
+              >
+                <SlidersHorizontal size={16} aria-hidden />
+                {tPeriod("filters.label")}
+              </button>
+            </div>
+            <div id="payment-filters">
+              <AdvancedFilters
+                periodId={Number(periodId)}
+                show={showFilter}
+                setShow={setShowFilter}
+                context={period}
+                onApply={(rows) =>
+                  setAdvancedIds(rows.map((row) => row.entry.id))
+                }
+              />
+            </div>
+            <section
+              id="payment-panel-file"
+              role="tabpanel"
+              aria-labelledby="payment-tab-file"
+              hidden={selectedTab !== "file"}
+            >
+              <ScbPaymentPanel
+                key={String(periodId)}
+                periodId={Number(periodId)}
+                entries={period.breakdowns}
+                visibleIds={filtered.map((row) => row.entry.id)}
+                active={selectedTab === "file"}
+              />
             </section>
-          </div>
-        </div>
+            <section
+              id="payment-panel-manual"
+              role="tabpanel"
+              aria-labelledby="payment-tab-manual"
+              hidden={selectedTab !== "manual"}
+              className="mt-5 space-y-3 pb-10"
+            >
+              {filtered.map((row) => (
+                <PaymentCard
+                  key={row.entry.id}
+                  periodId={Number(periodId)}
+                  breakdown={row}
+                  paymentDetails={period.paymentsByEntryId[row.entry.id]}
+                />
+              ))}
+              {!filtered.length && (
+                <p className="rounded-xl border border-dashed border-slate-300 p-10 text-center text-sm text-slate-600">
+                  {scb("empty")}
+                </p>
+              )}
+            </section>
+          </>
+        )}
       </div>
     </main>
   );

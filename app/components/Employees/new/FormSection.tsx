@@ -56,6 +56,7 @@ export default function FormSection({
       dateEmploy: new Date(),
       bankName: "",
       bankAccountNumber: "",
+      bankBranchCode: "",
       bankAccountOwner: "",
       promtpay: "",
       status: EMPLOYEE_STATUS.ACTIVE,

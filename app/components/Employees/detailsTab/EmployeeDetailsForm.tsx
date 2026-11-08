@@ -224,6 +224,7 @@ export default function EmployeeDetailsForm({
                 name="bankAccountNumber"
                 label={t("fields.bank_account_number")}
               />
+              <InputForm control={control} name="bankBranchCode" label={t("fields.bank_branch_code")} />
               <InputForm
                 control={control}
                 name="bankAccountOwner"
