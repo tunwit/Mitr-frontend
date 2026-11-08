@@ -1,11 +1,7 @@
+import { NativeInput } from "@/widget/Input";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import Image from "next/image";
-import React, {
-  ChangeEvent,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 
 interface AvatarProps {
   src?: string;
@@ -132,7 +128,7 @@ export default function ChangableAvatar({
         </div>
       </div>
 
-      <input
+      <NativeInput
         ref={fileInputRef}
         type="file"
         accept="image/*"

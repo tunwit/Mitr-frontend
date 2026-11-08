@@ -1,23 +1,14 @@
+import { TextInput } from "@/widget/Input";
 import { useUpdateShop, useVerifyEmailConfig } from "@/hooks/hook.shop";
 import { useCurrentShop } from "@/hooks/shop/useCurrentShop";
 import { useZodForm } from "@/lib/useZodForm";
 import { SMTPEmailConfigForm } from "@/schemas/email/emailConfigForm";
-import {
-  SEND_EMAIL_METHOD,
-  ShopConfigDTO,
-} from "@/types/type.shop";
+import { SEND_EMAIL_METHOD, ShopConfigDTO } from "@/types/type.shop";
 import { showError, showSuccess } from "@/utils/showSnackbar";
 import { InputForm } from "@/widget/InputForm";
 import { useUser } from "@clerk/nextjs";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import {
-  Button,
-  FormControl,
-  FormLabel,
-  Input,
-  Option,
-  Select,
-} from "@mui/joy";
+import { Button, FormControl, FormLabel, Option, Select } from "@mui/joy";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Controller, FormProvider } from "react-hook-form";
@@ -153,7 +144,7 @@ export default function SMTPEmailForm({ shopData }: EmailFormProps) {
               control={control}
               name="emailPassword"
               render={({ field }) => (
-                <Input
+                <TextInput
                   {...field}
                   onChange={(e) => field.onChange(e.target.value)}
                   type={showPassword ? "text" : "password"}

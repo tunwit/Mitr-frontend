@@ -60,7 +60,6 @@ export const useEmployees = ({
   branchId,
 }: useEmployeesProps) => {
   const { id: shopId } = useCurrentShop();
-  console.log(sortBy);
 
   const queryParams = new URLSearchParams({
     ...(shopId && { shopId: shopId.toString() }),
@@ -79,6 +78,7 @@ export const useEmployees = ({
       shopId,
       search_query,
       page,
+      limit,
       branchId,
       status,
       sortBy,

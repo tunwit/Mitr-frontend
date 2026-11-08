@@ -1,4 +1,5 @@
 import { useCurrentShop } from "@/hooks/shop/useCurrentShop";
+import { ApplyEmployeePresetDTO } from "@/types/type.employeePreset";
 import { ApiResponse } from "@/types/response";
 import {
   EntryBreakDownDTO,
@@ -18,8 +19,17 @@ import {
 
 export function useEntry(periodId: number) {
   const { id: shopId } = useCurrentShop();
-  const queryKey = ["entries", periodId];
+  const queryKey = ["entries", shopId, periodId];
   const queryClient = useQueryClient();
+  const refreshPeriod = () =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey }),
+      queryClient.invalidateQueries({ queryKey: ["period", shopId, periodId] }),
+      queryClient.invalidateQueries({ queryKey: ["periods", shopId] }),
+      queryClient.invalidateQueries({
+        queryKey: ["preview", shopId, periodId],
+      }),
+    ]);
   const list = useQuery<ApiResponse<EntryWithTotalDTO[]>>({
     queryKey,
     queryFn: () =>
@@ -34,7 +44,7 @@ export function useEntry(periodId: number) {
   });
 
   const create = useMutation<
-    ApiResponse<EntryPublicDTO>,
+    ApiResponse<EntryPublicDTO[]>,
     Error,
     { payload: NewEntryDTO }
   >({
@@ -45,12 +55,7 @@ export function useEntry(periodId: number) {
         body: payload,
       });
     },
-    onSuccess: (data) => {
-      console.log("created:", data);
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey });
-    },
+    onSuccess: refreshPeriod,
   });
 
   const remove = useMutation<
@@ -92,9 +97,14 @@ export function useEntry(periodId: number) {
       }
     },
 
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey });
-    },
+    onSettled: refreshPeriod,
+  });
+
+  const applyPreset = useMutation<ApiResponse<EntryPublicDTO[]>, Error, ApplyEmployeePresetDTO>({
+    mutationFn: (payload) => fetchwithauth({
+      endpoint: `/shops/${shopId}/periods/${periodId}/entries/preset`, method: "POST", body: payload,
+    }),
+    onSuccess: refreshPeriod,
   });
 
   const setPaid = useMutation<
@@ -111,13 +121,13 @@ export function useEntry(periodId: number) {
     },
   });
 
-  return { list, create, remove, setPaid };
+  return { list, create, remove, setPaid, applyPreset };
 }
 
 export function useEntryBreakdown(periodId: number, entryId: number) {
   const { id: shopId } = useCurrentShop();
-  const queryKey = ["entries", "items", entryId];
-  const queryKeyList = ["entries", periodId];
+  const queryKey = ["entries", shopId, periodId, "items", entryId];
+  const queryKeyList = ["entries", shopId, periodId];
   const queryClient = useQueryClient();
   const get = useQuery<ApiResponse<EntryBreakDownDTO>>({
     queryKey,
@@ -147,6 +157,8 @@ export function useEntryBreakdown(periodId: number, entryId: number) {
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey });
       queryClient.invalidateQueries({ queryKey: queryKeyList });
+      queryClient.invalidateQueries({ queryKey: ["period", shopId, periodId] });
+      queryClient.invalidateQueries({ queryKey: ["periods", shopId] });
     },
   });
 
@@ -155,7 +167,7 @@ export function useEntryBreakdown(periodId: number, entryId: number) {
 
 export function useEntrySlip(periodId: number) {
   const { id: shopId } = useCurrentShop();
-  const queryKey = ["entries", "pay-slip", periodId];
+  const queryKey = ["entries", shopId, periodId, "pay-slip"];
   const queryClient = useQueryClient();
   const get = (entryId: number) =>
     useMutation({

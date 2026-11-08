@@ -1,4 +1,6 @@
 "use client";
+import Breadcrumbs from "@/widget/Breadcrumbs";
+import { SearchInput } from "@/widget/Input";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { useState } from "react";
 import { useDebounce } from "use-debounce";
@@ -86,12 +88,13 @@ export default function Document() {
       </Modal>
       <main className="w-full h-full  font-medium overflow-auto py-10">
         <div className="mx-10">
-          <div className="flex flex-row text-[#424242] text-xs ">
-            <p>
-              {name} {">"} {tb("dashboard")} {">"}&nbsp;
-            </p>
-            <p className="text-blue-800">{tb("documents")}</p>
-          </div>
+          <Breadcrumbs
+            items={[
+              { label: name },
+              { label: tb("dashboard") },
+              { label: tb("documents") },
+            ]}
+          />
           <div className=" mt-5 flex flex-row justify-between">
             <p className="text-black text-4xl font-bold">{t("label")}</p>
           </div>
@@ -99,19 +102,12 @@ export default function Document() {
           <div className="mt-8 flex flex-row gap-2">
             <div className="w-full">
               <p className="text-black text-xs mb-1">{t("search.label")}</p>
-              <div className="flex flex-row items-center gap-1 bg-[#fbfcfe] py-[7px] px-2 rounded-sm border border-[#c8cfdb] shadow-xs">
-                <Icon
-                  className="text-[#424242]"
-                  icon={"material-symbols:search-rounded"}
-                />
-                <input
-                  type="text"
-                  placeholder={t("search.placeholder")}
-                  className="text-[#424242] font-light text-sm  w-full  focus:outline-none "
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-              </div>
+              <SearchInput
+                type="text"
+                placeholder={t("search.placeholder")}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
             </div>
           </div>
           <div className="flex justify-center mt-5">

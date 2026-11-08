@@ -1,3 +1,4 @@
+import { NativeInput } from "@/widget/Input";
 import { useCurrentShop } from "@/hooks/shop/useCurrentShop";
 import getFileIcon from "@/lib/getFileIcon";
 import { formatBytes } from "@/lib/unitConverter";
@@ -260,7 +261,7 @@ export default function UploadDocumentModal({
             <Button color="neutral" size="sm" onClick={onBrowseClick}>
               {t("actions.browse")}
             </Button>
-            <input
+            <NativeInput
               ref={inputRef}
               disabled={files.length >= filesLimit}
               type="file"

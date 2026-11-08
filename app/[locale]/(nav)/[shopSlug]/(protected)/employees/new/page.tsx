@@ -1,4 +1,5 @@
 "use client";
+import Breadcrumbs from "@/widget/Breadcrumbs";
 import CreateStepper from "@/app/components/Employees/new/CreateStepper";
 import { useState } from "react";
 import FormSection from "@/app/components/Employees/new/FormSection";
@@ -15,12 +16,15 @@ export default function Home() {
   return (
     <main className="min-h-screen w-full bg-white font-medium">
       <div className="mx-10">
-        <div className="flex flex-row text-[#424242] text-xs mt-10">
-          <p>
-            {name} {">"} {tb("dashboard")} {">"} {tb("employees")} {">"}&nbsp;
-          </p>
-          <p className="text-blue-800">{t("actions.create")}</p>
-        </div>
+        <Breadcrumbs
+          className="mt-10"
+          items={[
+            { label: name },
+            { label: tb("dashboard") },
+            { label: tb("employees") },
+            { label: t("actions.create") },
+          ]}
+        />
 
         <div className=" mt-5 flex flex-row justify-between mb-8">
           <p className="text-black text-4xl font-bold">{tn("label")}</p>

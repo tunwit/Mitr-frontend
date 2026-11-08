@@ -1,3 +1,4 @@
+import { TextInput } from "@/widget/Input";
 import { useCurrentShop } from "@/hooks/shop/useCurrentShop";
 import { useUser } from "@clerk/nextjs";
 import { Icon } from "@iconify/react/dist/iconify.js";
@@ -5,7 +6,6 @@ import {
   Button,
   FormControl,
   FormLabel,
-  Input,
   Modal,
   ModalClose,
   ModalDialog,
@@ -87,7 +87,7 @@ export default function InvitationModal({
         <section>
           <FormControl>
             <FormLabel>{t("fields.email")}</FormLabel>
-            <Input
+            <TextInput
               placeholder="example@gmail.com"
               onChange={(e) => {
                 setEmail(e.target.value);
@@ -119,7 +119,7 @@ export default function InvitationModal({
 
             <FormLabel>{t("info.invite_link")}</FormLabel>
             <div className="flex flex-row gap-2">
-              <Input placeholder="example@gmail.com" value={invitaionUrl} />
+              <TextInput placeholder="example@gmail.com" value={invitaionUrl} />
               <Button
                 sx={{ paddingRight: 2.5 }}
                 startDecorator={

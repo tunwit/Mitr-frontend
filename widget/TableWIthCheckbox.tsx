@@ -19,11 +19,16 @@ interface GenericTableProps<
   data: T[] | undefined;
   isLoading: boolean;
   isSuccess: boolean;
-  checkboxMethods: UseCheckBoxResult<ID>;
+  checkboxMethods?: UseCheckBoxResult<ID>;
+  tableLabel?: string;
   columns: Column<T>[];
   editColumn?: boolean;
   setSelectedItem?: Dispatch<SetStateAction<T | null>>;
-  setOpen: Dispatch<SetStateAction<boolean>>;
+  setOpen?: Dispatch<SetStateAction<boolean>>;
+  selectionLabel?: (row: T) => string;
+  selectAllLabel?: string;
+  loadingLabel?: string;
+  emptyLabel?: string;
 }
 
 export default function TableWithCheckBox<T extends { id: number | string }>({
@@ -32,45 +37,47 @@ export default function TableWithCheckBox<T extends { id: number | string }>({
   isSuccess,
   checkboxMethods,
   columns,
+  tableLabel,
   editColumn = true,
   setSelectedItem,
   setOpen,
+  selectionLabel,
+  selectAllLabel,
+  loadingLabel = "Loading...",
+  emptyLabel = "No Data",
 }: GenericTableProps<T>) {
-  const {
-    toggle,
-    isChecked,
-    checkall,
-    uncheckall,
-    isAllChecked,
-    isSomeChecked,
-  } = checkboxMethods;
-
+  const extraColumns = (checkboxMethods ? 1 : 0) + (editColumn ? 1 : 0);
   const handleAllCheckbox = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!data) return;
+    if (!data || !checkboxMethods) return;
     if (e.currentTarget.checked) {
-      checkall(data.map((v) => v.id));
+      checkboxMethods.checkall(data.map((v) => v.id));
     } else {
-      uncheckall();
+      checkboxMethods.uncheckall();
     }
   };
 
   return (
     <div className="bg-white rounded-lg shadow overflow-hidden">
       <div className="overflow-auto">
-        <table className="w-full">
+        <table aria-label={tableLabel} className="w-full">
           <thead className=" bg-gray-50 border border-gray-200">
             <tr className="bg-gray-100 h-15 rounded-t-md text-left ">
-              <th className="font-light text-sm pl-6 w-[4%] whitespace-nowrap min-w-15">
-                <Checkbox
-                  checked={isAllChecked(data?.length ?? 0)}
-                  indeterminate={isSomeChecked(data?.length ?? 0)}
-                  onChange={(e) => handleAllCheckbox(e)}
-                />
-              </th>
-              {columns.map((col) => (
+              {checkboxMethods && (
+                <th className="font-light text-sm pl-6 w-[4%] whitespace-nowrap min-w-15">
+                  <Checkbox
+                    slotProps={{ input: { "aria-label": selectAllLabel } }}
+                    checked={checkboxMethods.isAllChecked(data?.length ?? 0)}
+                    indeterminate={checkboxMethods.isSomeChecked(
+                      data?.length ?? 0,
+                    )}
+                    onChange={(e) => handleAllCheckbox(e)}
+                  />
+                </th>
+              )}
+              {columns.map((col, index) => (
                 <th
                   key={col.key.toString()}
-                  className={`font-light text-sm whitespace-nowrap ${col.width ?? ""}`}
+                  className={`font-light text-sm whitespace-nowrap ${!checkboxMethods && index === 0 ? "pl-6" : ""} ${col.width ?? ""}`}
                   style={{ width: col.width }}
                 >
                   {col.label}
@@ -83,7 +90,7 @@ export default function TableWithCheckBox<T extends { id: number | string }>({
             {isLoading && (
               <tr className="h-20 hover:bg-gray-50 transition-colors cursor-pointer ">
                 <td
-                  colSpan={columns.length + (editColumn ? 2 : 1)}
+                  colSpan={columns.length + extraColumns}
                   className="text-center"
                 >
                   <span className="flex items-center gap-2 w-full justify-center">
@@ -92,7 +99,7 @@ export default function TableWithCheckBox<T extends { id: number | string }>({
                       className="animate-spin"
                       fontSize={25}
                     />
-                    <p>Loading...</p>
+                    <p>{loadingLabel}</p>
                   </span>
                 </td>
               </tr>
@@ -100,7 +107,12 @@ export default function TableWithCheckBox<T extends { id: number | string }>({
 
             {isSuccess && !data?.length && (
               <tr className="h-20 hover:bg-gray-50 transition-colors cursor-pointer">
-                <td colSpan={columns.length + (editColumn ? 2 : 1)} className="text-center">No Data</td>
+                <td
+                  colSpan={columns.length + extraColumns}
+                  className="text-center"
+                >
+                  {emptyLabel}
+                </td>
               </tr>
             )}
 
@@ -110,18 +122,28 @@ export default function TableWithCheckBox<T extends { id: number | string }>({
                   key={row.id}
                   className="h-15 hover:bg-gray-50 transition-colors cursor-pointer"
                 >
-                  <td className="pl-6">
-                    <Checkbox
-                      checked={isChecked(row.id)}
-                      onChange={() => toggle(row.id)}
-                    />
-                  </td>
+                  {checkboxMethods && (
+                    <td className="pl-6">
+                      <Checkbox
+                        slotProps={{
+                          input: { "aria-label": selectionLabel?.(row) },
+                        }}
+                        checked={checkboxMethods.isChecked(row.id)}
+                        onChange={() => checkboxMethods.toggle(row.id)}
+                      />
+                    </td>
+                  )}
 
-                  {columns.map((col) => (
-                    <td key={col.key.toString()}>
+                  {columns.map((col, index) => (
+                    <td
+                      key={col.key.toString()}
+                      className={
+                        !checkboxMethods && index === 0 ? "pl-6" : undefined
+                      }
+                    >
                       {col.render
                         ? col.render(row, i)
-                        : (row[col.key as keyof T] as any)}
+                        : (row[col.key as keyof T] as React.ReactNode)}
                     </td>
                   ))}
 
@@ -130,7 +152,7 @@ export default function TableWithCheckBox<T extends { id: number | string }>({
                       className="cursor-pointer"
                       onClick={() => {
                         setSelectedItem(row);
-                        setOpen(true);
+                        setOpen?.(true);
                       }}
                     >
                       <Icon icon="ic:baseline-edit" className="text-xl" />

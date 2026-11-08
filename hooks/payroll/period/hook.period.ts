@@ -105,7 +105,7 @@ export function usePeriodValidate(periodId?: number | string) {
   const { id: shopId } = useCurrentShop();
 
   return useQuery<ApiResponse<ValidationResultDTO[]>>({
-    queryKey: ["period", shopId, periodId, "validate"],
+    queryKey: ["period", shopId, Number(periodId), "validate"],
     queryFn: () =>
       fetchwithauth({
         endpoint: `/shops/${shopId}/periods/${periodId}/validate`,
@@ -119,15 +119,15 @@ export function usePeriod(periodId?: number | string) {
   const { id: shopId } = useCurrentShop();
   const queryClient = useQueryClient();
   const queryKeyList = ["periods", shopId];
-  const queryKey = ["period", shopId, periodId];
-  const queryValidateKey = ["period", shopId, periodId, "validate"];
-  const queryKeyEntries = ["entries", periodId];
-  const queryKeyWithCal = ["period", shopId, periodId, "withCal"];
-  const queryKeyFilterContext = ["period", shopId, periodId, "context"];
+  const queryKey = ["period", shopId, Number(periodId)];
+  const queryValidateKey = ["period", shopId, Number(periodId), "validate"];
+  const queryKeyEntries = ["entries", shopId, Number(periodId)];
+  const queryKeyWithCal = ["period", shopId, Number(periodId), "withCal"];
+  const queryKeyFilterContext = ["period", shopId, Number(periodId), "context"];
   const queryKeyContextPayment = [
     "period",
     shopId,
-    periodId,
+    Number(periodId),
     "context",
     "payment",
   ];

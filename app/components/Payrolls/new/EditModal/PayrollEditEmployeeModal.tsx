@@ -1,3 +1,4 @@
+import { TextArea } from "@/widget/Input";
 import {
   Button,
   Modal,
@@ -7,7 +8,6 @@ import {
   TabList,
   TabPanel,
   Tabs,
-  Textarea,
 } from "@mui/joy";
 import React, { useEffect, useState } from "react";
 import PayrollTable from "./PayrollTable";
@@ -323,6 +323,7 @@ export default function PayrollEditEmployeeModal({
                   renderAmount={(item) => Number(item.amount)}
                   showValueColumn={true}
                   autoCalculate={true}
+                  baseSalary={baseSalary}
                   calculateAmount={(item, v) =>
                     calculateOT(
                       baseSalary,
@@ -347,6 +348,7 @@ export default function PayrollEditEmployeeModal({
                   renderAmount={(item) => Number(item.amount)}
                   showValueColumn={true}
                   autoCalculate={true}
+                  baseSalary={baseSalary}
                   calculateAmount={(item, v) =>
                     calculatePenalty(
                       baseSalary,
@@ -393,7 +395,7 @@ export default function PayrollEditEmployeeModal({
               <h1 className="font-bold text-lg">{t("fields.note")}</h1>
               <p className="text-xs text-gray-500">{t("info.note")}</p>
             </span>
-            <Textarea
+            <TextArea
               value={note}
               onChange={(e) => setNote(e.target.value)}
               sx={{ height: "60px", padding: 1 }}

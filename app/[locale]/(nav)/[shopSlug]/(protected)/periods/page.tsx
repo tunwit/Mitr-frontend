@@ -1,4 +1,6 @@
 "use client";
+import Breadcrumbs from "@/widget/Breadcrumbs";
+import { SearchInput } from "@/widget/Input";
 import Button from "@mui/joy/Button";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import dayjs from "dayjs";
@@ -46,7 +48,7 @@ export default function PeriodsPage() {
   };
 
   return (
-    <main className="min-h-screen w-full bg-gray-50 font-medium">
+    <main className="min-h-screen w-full bg-white font-medium">
       <title>Payrolls - Eslip</title>
       <Modal open={isLoading}>
         <ModalDialog>
@@ -62,13 +64,15 @@ export default function PeriodsPage() {
         </ModalDialog>
       </Modal>
 
-      <section className="px-10 pb-5 bg-white w-full border-b border-gray-200">
-        <div className=" flex flex-row text-[#424242] text-xs pt-10 ">
-          <p>
-            {name} {">"} {tb("dashboard")} {">"} &nbsp;
-          </p>
-          <p className="text-blue-800">{tb("payrolls")}</p>
-        </div>
+      <section className="px-10 pb-5 bg-white w-full ">
+        <Breadcrumbs
+          className="pt-10"
+          items={[
+            { label: name },
+            { label: tb("dashboard") },
+            { label: tb("payrolls") },
+          ]}
+        />
         <div className="mt-5 flex flex-row justify-between">
           <span>
             <p className="text-black text-4xl font-bold">{t("label")}</p>
@@ -86,21 +90,13 @@ export default function PeriodsPage() {
       </section>
 
       <div className="mx-10 flex flex-col min-h-screen ">
-        <section className="mt-8 flex flex-row justify-between bg-white p-4 rounded-md shadow">
-          <div className="flex flex-row gap-3">
-            <div className="w-96 ">
-              <div className="flex flex-row items-center gap-1 bg-[#fbfcfe] py-[7px] px-2 rounded-sm border border-[#c8cfdb] shadow-xs">
-                <Icon
-                  className="text-[#424242]"
-                  icon={"material-symbols:search-rounded"}
-                />
-                <input
-                  type="text"
-                  placeholder={t("search.placeholder")}
-                  className="text-[#424242] font-light text-sm  w-full  focus:outline-none "
-                />
-              </div>
-            </div>
+        <section className=" flex flex-row justify-between bg-white">
+          <div className="w-[60%]">
+            <SearchInput
+              type="text"
+              placeholder={t("search.placeholder")}
+              className="h-6"
+            />
           </div>
         </section>
 

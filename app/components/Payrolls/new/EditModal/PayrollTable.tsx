@@ -1,13 +1,9 @@
+import { NativeInput } from "@/widget/Input";
 import { moneyFormat } from "@/utils/formmatter";
 import { Checkbox, Table } from "@mui/joy";
 import Decimal from "decimal.js";
 import { useTranslations } from "next-intl";
-import React, {
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useState,
-} from "react";
+import React, { Dispatch, SetStateAction, useEffect } from "react";
 
 interface PayrollTableProps<T extends { id: number }> {
   data: T[];
@@ -44,7 +40,6 @@ export default function PayrollTable<T extends { id: number }>({
   setBaseSalary,
   showFooter = true,
 }: PayrollTableProps<T>) {
-  const [total, setTotal] = useState<Decimal>();
   const t = useTranslations("record.edit");
   const tr = useTranslations("record");
 
@@ -59,14 +54,12 @@ export default function PayrollTable<T extends { id: number }>({
     setIsDirty(true);
   };
 
-  useEffect(() => {
-    const sum = Object.values(amountValues).reduce((acc, v) => {
-      return acc.plus(v?.amount ?? 0);
-    }, new Decimal(0));
-
-    const totalSum = showIncomeRow ? sum.plus(baseSalary ?? 0) : sum;
-    setTotal(totalSum);
-  }, [amountValues, showIncomeRow, baseSalary]);
+  const sum = data.reduce(
+    (acc, item) =>
+      acc.plus(amountValues[item.id]?.amount ?? renderAmount(item)),
+    new Decimal(0),
+  );
+  const total = showIncomeRow ? sum.plus(baseSalary ?? 0) : sum;
 
   const isInitialized = React.useRef(false);
 
@@ -153,9 +146,9 @@ export default function PayrollTable<T extends { id: number }>({
 
               {/* Amount */}
               <td>
-                <input
+                <NativeInput
+                  appearance="table"
                   type="number"
-                  className="border rounded px-2 py-1 w-full"
                   value={baseSalary?.toNumber()}
                   onChange={(e) => {
                     setBaseSalary
@@ -185,9 +178,9 @@ export default function PayrollTable<T extends { id: number }>({
                 {/* Value Column */}
                 {showValueColumn && (
                   <td>
-                    <input
+                    <NativeInput
+                      appearance="table"
                       type="number"
-                      className="border rounded px-2 py-1 w-full"
                       value={value}
                       onChange={(e) => {
                         applyAutoAmount(item, Number(e.target.value));
@@ -199,13 +192,9 @@ export default function PayrollTable<T extends { id: number }>({
 
                 {/* Amount */}
                 <td>
-                  <input
+                  <NativeInput
+                    appearance="table"
                     type="number"
-                    className={`px-2 py-1 w-full rounded ${
-                      autoCalculate
-                        ? "bg-gray-200 cursor-not-allowed"
-                        : "border"
-                    }`}
                     value={amount}
                     readOnly={autoCalculate}
                     onChange={(e) => {

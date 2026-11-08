@@ -1,22 +1,26 @@
 "use client";
-import { Icon } from "@iconify/react/dist/iconify.js";
+import { useTranslations } from "next-intl";
+import Breadcrumbs from "@/widget/Breadcrumbs";
+import { SearchInput } from "@/widget/Input";
 import Select from "@mui/joy/Select";
 import Option from "@mui/joy/Option";
 import { useCurrentShop } from "@/hooks/shop/useCurrentShop";
 
 export default function Home() {
   const { name } = useCurrentShop();
+  const tb = useTranslations("breadcrumb");
 
   return (
     <main className="min-h-screen w-full bg-white font-medium">
       <div className="mx-10 flex flex-col min-h-screen ">
-        <div className="flex flex-row text-[#424242] text-xs mt-10">
-          <p>
-            {" "}
-            {name} {">"} Dashboard {">"}&nbsp;
-          </p>
-          <p className="text-blue-800">Records</p>
-        </div>
+        <Breadcrumbs
+          className="mt-10"
+          items={[
+            { label: name },
+            { label: tb("dashboard") },
+            { label: tb("records") },
+          ]}
+        />
         <div className="mt-5 flex flex-row justify-between">
           <p className="text-black text-4xl font-bold">Records</p>
         </div>
@@ -26,17 +30,7 @@ export default function Home() {
         <div className="mt-8 flex flex-row gap-2">
           <div className="w-[60%]">
             <p className="text-black text-xs mb-1">Search Payrolls</p>
-            <div className="flex flex-row items-center gap-1 bg-[#fbfcfe] py-[7px] px-2 rounded-sm border border-[#c8cfdb] shadow-xs">
-              <Icon
-                className="text-[#424242]"
-                icon={"material-symbols:search-rounded"}
-              />
-              <input
-                type="text"
-                placeholder="Search"
-                className="text-[#424242] font-light text-sm  w-full  focus:outline-none "
-              />
-            </div>
+            <SearchInput type="text" placeholder="Search" />
           </div>
 
           <div className="w-[20%]">

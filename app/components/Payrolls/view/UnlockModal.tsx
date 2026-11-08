@@ -1,3 +1,4 @@
+import { NativeInput } from "@/widget/Input";
 import { showError } from "@/utils/showSnackbar";
 import { useUser } from "@clerk/nextjs";
 import { Icon } from "@iconify/react/dist/iconify.js";
@@ -82,7 +83,7 @@ export default function UnlockModal({
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-gray-600 w-full border border-gray-300 rounded-sm py-1 px-2 h-12">
                       <Icon icon="fluent:key-32-regular" fontSize={18} />
-                      <input
+                      <NativeInput
                         type={`${showPassword ? "text" : "password"}`}
                         className="w-full font-ligh h-full focus:outline-0 font-light"
                         placeholder={t("password.placeholder")}

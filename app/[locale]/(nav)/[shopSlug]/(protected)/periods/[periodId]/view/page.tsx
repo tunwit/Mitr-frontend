@@ -1,12 +1,10 @@
 "use client";
+import Breadcrumbs from "@/widget/Breadcrumbs";
+import { SearchInput } from "@/widget/Input";
 import Button from "@mui/joy/Button";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { useEffect, useMemo, useState } from "react";
-import {
-  useParams,
-  usePathname,
-  useRouter,
-} from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { dateFormat, dateTimeFormat, moneyFormat } from "@/utils/formmatter";
 import UsersIcon from "@/assets/icons/UsersIcon";
 import { useDebounce } from "use-debounce";
@@ -175,14 +173,15 @@ export default function ViewPeriodPage() {
               className="overflow-hidden relative"
             >
               <section className="px-10 pb-5 bg-white w-full border-b border-gray-200 sticky top-0">
-                <div className="flex flex-row text-[#424242] text-xs mt-10">
-                  <p>
-                    {" "}
-                    {name} {">"} {tBreadcrumb("dashboard")} {">"}{" "}
-                    {tBreadcrumb("payrolls")} {">"}&nbsp;
-                  </p>
-                  <p className="text-blue-800">{tBreadcrumb("view_payroll")}</p>
-                </div>
+                <Breadcrumbs
+                  className="mt-10"
+                  items={[
+                    { label: name },
+                    { label: tBreadcrumb("dashboard") },
+                    { label: tBreadcrumb("payrolls") },
+                    { label: tBreadcrumb("view_payroll") },
+                  ]}
+                />
                 <div className="mt-5 flex flex-row justify-between items-center   ">
                   <div>
                     <span className="flex flex-row gap-3  items-center  text-black text-4xl font-bold">
@@ -471,18 +470,13 @@ export default function ViewPeriodPage() {
               <div className="flex flex-row justify-between h-10">
                 <div className="flex flex-row gap-3 h-full">
                   <div className="w-96 ">
-                    <div className="flex flex-row items-center gap-1 bg-[#fbfcfe] h-full px-2 rounded-sm border border-[#c8cfdb] shadow-xs">
-                      <Icon
-                        className="text-[#424242]"
-                        icon={"material-symbols:search-rounded"}
-                      />
-                      <input
-                        type="text"
-                        placeholder={tPeriod("search.placeholder")}
-                        className="text-[#424242] font-light text-sm  w-full h-full  focus:outline-none "
-                        onChange={(e) => setQuery(e.target.value)}
-                      />
-                    </div>
+                    <SearchInput
+                      type="text"
+                      placeholder={tPeriod("search.placeholder")}
+                      onChange={(e) => setQuery(e.target.value)}
+                      className="h-full"
+                      stretch
+                    />
                   </div>
                   <button
                     className="text-gray-700 border border-gray-300 rounded-md px-4 hover:bg-gray-50"

@@ -1,18 +1,11 @@
 "use client";
-import { Button, FormControl, FormLabel, Input } from "@mui/joy";
+import { TextInput } from "@/widget/Input";
+import { Button, FormControl, FormLabel } from "@mui/joy";
 import React, { Suspense, useState } from "react";
 import BranchSelector from "../../../../widget/BranchSelector";
-import {
-  EmployeeDetailedDTO,
-} from "@/types/type.employee";
-import {
-  Controller,
-  useFormContext,
-  useWatch,
-} from "react-hook-form";
-import {
-  createEmployeeFormSchema,
-} from "@/types/formField";
+import { EmployeeDetailedDTO } from "@/types/type.employee";
+import { Controller, useFormContext, useWatch } from "react-hook-form";
+import { createEmployeeFormSchema } from "@/types/formField";
 import GenderSelector from "@/widget/GenderSelector";
 import DatePickerLocalize from "@/widget/DatePickerLocalize";
 import dayjs from "dayjs";
@@ -249,7 +242,7 @@ export default function EmployeeDetailsForm({
                   control={control}
                   name="promtpay"
                   render={({ field }) => (
-                    <Input
+                    <TextInput
                       endDecorator={
                         <Button
                           variant="outlined"

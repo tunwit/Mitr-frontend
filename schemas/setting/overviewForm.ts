@@ -9,10 +9,10 @@ export const overviewSchema = z.object({
     .or(z.literal("")),
   default_work_hours_per_day: z
     .number({ required_error: "Work hour / day is Required" })
-    .gte(0, "Work hour must >= 0")
+    .min(0.01, "Work hour must be greater than 0")
     .lte(24, "Work hour must <= 24"),
   default_workdays_per_month: z
     .number({ required_error: "Work day / month is Required" })
-    .gte(0, "Work day must >= 0")
+    .min(0.01, "Work day must be greater than 0")
     .lte(31, "Work day must <= 31"),
 });

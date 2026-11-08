@@ -1,12 +1,10 @@
 "use client";
+import Breadcrumbs from "@/widget/Breadcrumbs";
+import { SearchInput } from "@/widget/Input";
 import Button from "@mui/joy/Button";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { useEffect, useState } from "react";
-import {
-  useParams,
-  usePathname,
-  useRouter,
-} from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { useCheckBox } from "@/hooks/useCheckBox";
 import { dateFormat, moneyFormat } from "@/utils/formmatter";
 import UsersIcon from "@/assets/icons/UsersIcon";
@@ -20,9 +18,7 @@ import PaymentCard from "@/app/components/Payrolls/payment/PaymentCard";
 import { useTranslations } from "next-intl";
 import { useCurrentShop } from "@/hooks/shop/useCurrentShop";
 import { usePeriod } from "@/hooks/payroll/period/hook.period";
-import {
-  EntryBreakDownDTO,
-} from "@/types/type.entry";
+import { EntryBreakDownDTO } from "@/types/type.entry";
 
 export default function Home() {
   const methods = useCheckBox<number>("payrollRecordTable");
@@ -112,16 +108,15 @@ export default function Home() {
               className="overflow-hidden relative"
             >
               <section className="px-10 pb-5 bg-white w-full border-b border-gray-200 sticky top-0">
-                <div className="flex flex-row text-[#424242] text-xs pt-10">
-                  <p>
-                    {" "}
-                    {name} {">"} {tBreadcrumb("dashboard")} {">"}{" "}
-                    {tBreadcrumb("payrolls")} {">"}&nbsp;
-                  </p>
-                  <p className="text-blue-800">
-                    {tBreadcrumb("payment_payroll")}{" "}
-                  </p>
-                </div>
+                <Breadcrumbs
+                  className="pt-10"
+                  items={[
+                    { label: name },
+                    { label: tBreadcrumb("dashboard") },
+                    { label: tBreadcrumb("payrolls") },
+                    { label: tBreadcrumb("payment_payroll") },
+                  ]}
+                />
                 <div className="mt-3 flex flex-row justify-between items-center  text-black text-4xl font-bold">
                   <p>{periodData?.data?.name}</p>
                   <Button
@@ -327,18 +322,13 @@ export default function Home() {
                 <div className="flex flex-row justify-between h-10">
                   <div className="flex flex-row gap-3 h-full">
                     <div className="w-96 ">
-                      <div className="flex flex-row items-center gap-1 bg-[#fbfcfe] h-full px-2 rounded-sm border border-[#c8cfdb] shadow-xs">
-                        <Icon
-                          className="text-[#424242]"
-                          icon={"material-symbols:search-rounded"}
-                        />
-                        <input
-                          type="text"
-                          placeholder={tPeriod("search.placeholder")}
-                          className="text-[#424242] font-light text-sm  w-full h-full  focus:outline-none "
-                          onChange={(e) => setQuery(e.target.value)}
-                        />
-                      </div>
+                      <SearchInput
+                        type="text"
+                        placeholder={tPeriod("search.placeholder")}
+                        onChange={(e) => setQuery(e.target.value)}
+                        className="h-full"
+                        stretch
+                      />
                     </div>
                     <button
                       className="text-gray-700 border border-gray-300 rounded-md px-4 hover:bg-gray-50"

@@ -15,12 +15,12 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider signInUrl="/th/sign-in">
-      <html className={`${prompt.variable} antialiased`}>
-        <body className={`${prompt.className} antialiased flex`}>
+    <html className={`${prompt.variable} antialiased`}>
+      <body className={`${prompt.className} antialiased flex`}>
+        <ClerkProvider signInUrl="/th/sign-in">
           <Suspense>{children}</Suspense>
-        </body>
-      </html>
-    </ClerkProvider>
+        </ClerkProvider>
+      </body>
+    </html>
   );
 }

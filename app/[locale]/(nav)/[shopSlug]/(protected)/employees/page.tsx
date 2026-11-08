@@ -1,4 +1,6 @@
 "use client";
+import Breadcrumbs from "@/widget/Breadcrumbs";
+import { SearchInput } from "@/widget/Input";
 import Button from "@mui/joy/Button";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { useRouter } from "next/navigation";
@@ -35,12 +37,14 @@ export default function Home() {
 
       <main className="min-h-screen w-full bg-white font-medium">
         <div className="mx-10">
-          <div className="flex flex-row text-[#424242] text-xs mt-10">
-            <p>
-              {name} {">"} {tb("dashboard")} {">"}&nbsp;
-            </p>
-            <p className="text-blue-800">{tb("employees")}</p>
-          </div>
+          <Breadcrumbs
+            className="mt-10"
+            items={[
+              { label: name },
+              { label: tb("dashboard") },
+              { label: tb("employees") },
+            ]}
+          />
           <div className=" mt-5 flex flex-row justify-between">
             <p className="text-black text-4xl font-bold">{t("label")}</p>
             <Button
@@ -64,19 +68,13 @@ export default function Home() {
           <div className="mt-8 flex flex-row gap-2">
             <div className="w-[60%]">
               <p className="text-black text-xs mb-1"> {t("search.label")}</p>
-              <div className="flex flex-row items-center gap-1 bg-[#fbfcfe] py-[7px] px-2 rounded-sm border border-[#c8cfdb] shadow-xs">
-                <Icon
-                  className="text-[#424242]"
-                  icon={"material-symbols:search-rounded"}
-                />
-                <input
-                  type="text"
-                  placeholder={t("search.placeholder")}
-                  className="text-[#424242] font-light text-sm  w-full  focus:outline-none h-6"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-              </div>
+              <SearchInput
+                type="text"
+                placeholder={t("search.placeholder")}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="h-6"
+              />
             </div>
 
             <div className="w-[20%]">

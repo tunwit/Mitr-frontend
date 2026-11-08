@@ -1,4 +1,5 @@
 "use client";
+import { NativeInput } from "@/widget/Input";
 import { usePeriod } from "@/hooks/payroll/period/hook.period";
 import { ISSUE_TYPE, ValidationResultDTO } from "@/types/payroll/type.validate";
 import { PeriodSummaryDTO } from "@/types/type.period";
@@ -314,7 +315,7 @@ export default function FinalizeModal({
 
           <div className="mt-6 p-4 bg-gray-100 rounded-lg">
             <label className="flex items-start gap-3 cursor-pointer">
-              <input
+              <NativeInput
                 type="checkbox"
                 className="mt-1 rounded"
                 checked={confirmCheckbox}

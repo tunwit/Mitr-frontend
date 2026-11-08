@@ -1,15 +1,13 @@
 "use client";
+import Breadcrumbs from "@/widget/Breadcrumbs";
+import { NativeInput, SearchInput } from "@/widget/Input";
 import Button from "@mui/joy/Button";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { Add } from "@mui/icons-material";
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import PayrollsAddEmployeeModal from "@/app/components/Payrolls/new/AddModal/PayrollsAddEmployeeModal";
-import {
-  useParams,
-  usePathname,
-  useRouter,
-} from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { useCheckBox } from "@/hooks/useCheckBox";
 import PayrollEditEmployeeModal from "@/app/components/Payrolls/new/EditModal/PayrollEditEmployeeModal";
 import { showError, showSuccess } from "@/utils/showSnackbar";
@@ -76,6 +74,7 @@ export default function EditPeriodPage() {
 
   const [filterdRecord, setFilterdRecord] = useState<EntryWithTotalDTO[]>([]);
   const tPeriod = useTranslations("period");
+  const tBreadcrumb = useTranslations("breadcrumb");
 
   const deleteHandler = async () => {
     if (!user?.id) return;
@@ -188,6 +187,11 @@ export default function EditPeriodPage() {
   return (
     <main className=" w-full bg-gray-100 font-medium ">
       <PayrollsAddEmployeeModal
+        onApplied={() => {
+          uncheckall();
+          setSelectedRecord(null);
+          setOpenEdit(false);
+        }}
         open={openAdd}
         setOpen={setOpenAdd}
         periodId={Number(periodId)}
@@ -213,19 +217,21 @@ export default function EditPeriodPage() {
 
       <div className="flex flex-col h-full">
         <section className="px-10 pb-5 bg-white w-full border-b border-gray-200 sticky top-0">
-          <div className="flex flex-row text-[#424242] text-xs mt-10">
-            <p>
-              {" "}
-              {name} {">"} Dashboard {">"} Payrolls {">"}&nbsp;
-            </p>
-            <p className="text-blue-800">Edit Payrolls</p>
-          </div>
+          <Breadcrumbs
+            className="mt-10"
+            items={[
+              { label: name },
+              { label: tBreadcrumb("dashboard") },
+              { label: tBreadcrumb("payrolls") },
+              { label: tBreadcrumb("edit_payroll") },
+            ]}
+          />
           <div className="mt-3 flex flex-row justify-between">
-            <input
+            <NativeInput
               value={periodTitle ?? ""}
               onChange={(e) => setPeriodTitle(e.target.value)}
               className="text-black rounded-md text-3xl font-bold p-2"
-            ></input>
+            ></NativeInput>
 
             <div className="flex gap-3 z-10 h-5">
               <IconButton
@@ -367,18 +373,12 @@ export default function EditPeriodPage() {
             <div className="flex flex-row justify-between ">
               <div className="flex flex-row gap-3">
                 <div className="w-96 ">
-                  <div className="flex flex-row items-center gap-1 bg-[#fbfcfe] h-full px-2 rounded-sm border border-[#c8cfdb] shadow-xs">
-                    <Icon
-                      className="text-[#424242]"
-                      icon={"material-symbols:search-rounded"}
-                    />
-                    <input
-                      type="text"
-                      placeholder={tPeriod("search.placeholder")}
-                      className="text-[#424242] font-light text-sm  w-full  focus:outline-none "
-                      onChange={(e) => setQuery(e.target.value)}
-                    />
-                  </div>
+                  <SearchInput
+                    type="text"
+                    placeholder={tPeriod("search.placeholder")}
+                    onChange={(e) => setQuery(e.target.value)}
+                    stretch
+                  />
                 </div>
                 <button
                   className="text-gray-700 border border-gray-300 rounded-md px-4 hover:bg-gray-50"

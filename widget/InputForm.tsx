@@ -1,11 +1,11 @@
-import { FormControl, FormLabel, Input } from "@mui/joy";
-import { Controller } from "react-hook-form";
+import { Controller, type FieldPath } from "react-hook-form";
 import { z } from "zod";
 import { ZodControl } from "@/lib/useZodForm"; // import type from above
+import { TextInput } from "@/widget/Input";
 
 interface InputFormProps<TSchema extends z.ZodTypeAny> {
   control: ZodControl<TSchema>;
-  name: keyof z.infer<TSchema>;
+  name: FieldPath<z.infer<TSchema>>;
   label: string;
   placeHolder?: string;
   disabled?: boolean;
@@ -28,33 +28,23 @@ export function InputForm<TSchema extends z.ZodTypeAny>({
 
   return (
     <Controller
-      name={name as any}
+      name={name}
       control={control}
       render={({ field, fieldState }) => (
-        <FormControl
-          error={!!fieldState.error}
+        <TextInput
+          {...field}
+          label={label}
+          errorMessage={fieldState.error?.message}
           required={required ? required : isRequired}
-        >
-          <FormLabel>
-            {label}
-            {fieldState.error && (
-              <p className="text-xs ml-2 font-normal text-red-500 italic">
-                {fieldState.error.message}
-              </p>
-            )}
-          </FormLabel>
-          <Input
-            {...field}
-            onChange={(e) =>
-              field.onChange(
-                type === "number" ? e.target.valueAsNumber : e.target.value,
-              )
-            }
-            disabled={disabled}
-            type={type}
-            placeholder={placeHolder}
-          />
-        </FormControl>
+          onChange={(e) =>
+            field.onChange(
+              type === "number" ? e.target.valueAsNumber : e.target.value,
+            )
+          }
+          disabled={disabled}
+          type={type}
+          placeholder={placeHolder}
+        />
       )}
     />
   );

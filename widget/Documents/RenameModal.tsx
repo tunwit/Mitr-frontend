@@ -1,5 +1,6 @@
+import { TextInput } from "@/widget/Input";
 import { DocumentPublicDTO } from "@/types/type.document";
-import { Button, Input, Modal, ModalClose, ModalDialog } from "@mui/joy";
+import { Button, Modal, ModalClose, ModalDialog } from "@mui/joy";
 import { useTranslations } from "next-intl";
 import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 
@@ -44,7 +45,7 @@ export default function RenameModal<T extends DocumentPublicDTO>({
         <h1 className="font-bold text-xl">{t("rename.label")}</h1>
         <form onSubmit={onConfirm}>
           <section>
-            <Input
+            <TextInput
               onChange={(e) => setNewName(e.target.value)}
               value={newName}
               placeholder="rename"

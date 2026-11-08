@@ -8,14 +8,14 @@ interface DashboardButtonProps {
   selected?: boolean;
   id: string;
   href: string;
-  items?:
-    | {
-        titleKey: string;
-        id: string;
-        icon: React.FC<React.SVGProps<SVGSVGElement>>;
-        onclick: () => void | Promise<void>;
-      }[]
-    ;
+  items?: {
+    titleKey: string;
+    id: string;
+    icon: React.FC<React.SVGProps<SVGSVGElement>>;
+    onclick?: () => void | Promise<void>;
+    href?: string;
+    selected?: boolean;
+  }[];
 }
 
 export default function DashboardButton({
@@ -26,10 +26,15 @@ export default function DashboardButton({
   href,
 }: DashboardButtonProps) {
   const IconComponent = icon;
-  const t = useTranslations("documents.name");
+  const t = useTranslations();
   return (
     <>
-      <Link href={href}>
+      <Link
+        href={href}
+        aria-current={
+          selected && !items?.some((item) => item.selected) ? "page" : undefined
+        }
+      >
         <div
           className={`flex flex-row rounded-sm font-semibold gap-3 mr-3  py-2 px-[5%] items-center hover:bg-[#2b2b2b] ${selected ? "bg-[#d9a241] rounded-sm hover:bg-[#d9a241] " : ""}`}
         >
@@ -43,10 +48,23 @@ export default function DashboardButton({
       </Link>
       {items && (
         <ul className="px-12 text-[#7a7a7a] flex flex-col gap-2 list-disc">
-          {items.map((i, _) => {
+          {items.map((i) => {
             return (
-              <li className="list-disc font-bold" key={_}>
-                <button onClick={i.onclick}>{t(i.titleKey)}</button>
+              <li
+                className={`list-disc font-bold ${i.selected ? "text-[#d9a241]" : ""}`}
+                key={i.id}
+              >
+                {i.href ? (
+                  <Link
+                    href={i.href}
+                    aria-current={i.selected ? "page" : undefined}
+                    className="block rounded-sm py-1 hover:text-[#dedede] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#d9a241]"
+                  >
+                    {t(i.titleKey)}
+                  </Link>
+                ) : (
+                  <button onClick={i.onclick}>{t(i.titleKey)}</button>
+                )}
               </li>
             );
           })}

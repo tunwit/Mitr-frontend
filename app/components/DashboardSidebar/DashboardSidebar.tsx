@@ -32,19 +32,19 @@ const DashboardRails = [
     href: "/documents",
     items: [
       {
-        titleKey: "pnd1",
+        titleKey: "documents.name.pnd1",
         id: "pnd1",
         icon: DocumentSmallIcon,
         onclick: () => getDocumentPath("pnd1"),
       },
       {
-        titleKey: "pnd1G",
+        titleKey: "documents.name.pnd1G",
         id: "pnd1G",
         icon: DocumentSmallIcon,
         onclick: () => getDocumentPath("pnd1G"),
       },
       {
-        titleKey: "50Tw",
+        titleKey: "documents.name.50Tw",
         id: "50Tw",
         icon: DocumentSmallIcon,
         onclick: () => getDocumentPath("50Tw"),
@@ -56,6 +56,14 @@ const DashboardRails = [
     icon: MoneyIcon,
     id: "periods",
     href: "/periods",
+    items: [
+      {
+        titleKey: "navigation.employee_presets",
+        id: "presets",
+        icon: DocumentSmallIcon,
+        href: "/presets",
+      },
+    ],
   },
   // {
   //   titleKey: "Records",
@@ -84,6 +92,7 @@ export default function DashboardSidebar() {
   const pathname = usePathname().split("/");
   const shopSlug = pathname[2];
   const page = pathname[3];
+  const isPresetPage = page === "presets";
   const sidebarState = useHamburger((state) => state.open);
   const { data, isLoading } = useOwnShop();
   const t = useTranslations("navigation");
@@ -200,9 +209,11 @@ export default function DashboardSidebar() {
                 title={t(v.titleKey)}
                 icon={v.icon}
                 id={v.id}
-                selected={page == v.id}
+                selected={page === v.id || (v.id === "periods" && isPresetPage)}
                 href={`/${shopSlug}${v.href}`}
-                items={v.items}
+                items={v.items?.map((item) => "href" in item && item.href
+                  ? { ...item, href: `/${shopSlug}${item.href}`, selected: isPresetPage }
+                  : item)}
               />
             );
           })}
@@ -219,7 +230,7 @@ export default function DashboardSidebar() {
                 title={t(v.titleKey)}
                 icon={v.icon}
                 id={v.id}
-                selected={page == v.id}
+                selected={page === v.id && !isPresetPage}
                 href={`/${shopSlug}${v.href}`}
               />
             );

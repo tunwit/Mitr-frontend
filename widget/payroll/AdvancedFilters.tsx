@@ -1,3 +1,4 @@
+import { NativeInput } from "@/widget/Input";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { useLocale, useTranslations } from "next-intl";
 import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
@@ -382,7 +383,7 @@ export default function AdvancedFilters<T extends { id: number }>({
                       <option value={"false"}>false</option>
                     </select>
                   ) : (
-                    <input
+                    <NativeInput
                       type={"number"}
                       value={filter.value as unknown as number}
                       onChange={(e) =>

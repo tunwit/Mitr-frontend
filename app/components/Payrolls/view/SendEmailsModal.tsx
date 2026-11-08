@@ -1,6 +1,7 @@
+import { TextInput } from "@/widget/Input";
 import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Loader2, X } from "lucide-react";
-import { Checkbox, Input, Modal, ModalDialog } from "@mui/joy";
+import { Checkbox, Modal, ModalDialog } from "@mui/joy";
 import { dateFormat, moneyFormat } from "@/utils/formmatter";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { showError } from "@/utils/showSnackbar";
@@ -351,7 +352,7 @@ export default function SendEmailsModal({
                 const avatar = `${breakdown.entry.employee.avatar}`;
                 return (
                   <div
-                    key={breakdown.entry.employee.id}
+                    key={breakdown.entry.id}
                     className={`flex items-center gap-4 p-4 border-2 rounded-lg transition-all ${
                       isChecked(breakdown.entry.id)
                         ? "border-purple-300 bg-purple-50"
@@ -395,7 +396,7 @@ export default function SendEmailsModal({
                         <div className="flex items-center gap-2 mt-1">
                           {isEditing ? (
                             <div className="flex items-center gap-2">
-                              <Input
+                              <TextInput
                                 sx={{
                                   height: 32,
                                   fontSize: 14,

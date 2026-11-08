@@ -141,7 +141,7 @@ export default function PaySlipGenerateModal({
               {periodContext.breakdowns.map((b) => {
                 return (
                   <div
-                    key={b.entry.employee.id}
+                    key={b.entry.id}
                     className={`flex items-center gap-4 p-4 border rounded-lg transition-colors ${
                       isChecked(b.entry.id)
                         ? "border-blue-300 bg-blue-50"
