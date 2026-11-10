@@ -13,5 +13,6 @@ export type createEmployeeFormField = z.infer<typeof createEmployeeFormSchema>;
 
 export const updateEmployeeFormSchema = personalSchema
   .merge(addressSchema)
-  .merge(contractSchema);
+  .merge(contractSchema)
+  .partial({ dateOfBirth: true, position: true });
 export type updateEmployeeFormField = z.infer<typeof updateEmployeeFormSchema>;

@@ -34,6 +34,8 @@ export type EmployeeDetailedDTO = {
   gender: GENDER;
   phoneNumber: string;
   dateEmploy: Date | null;
+  haveSocialSecurity: boolean;
+  socialSecurityNumber: string | null;
   address1: string | null;
   address2: string | null;
   address3: string | null;
@@ -59,6 +61,8 @@ export type NewEmployeeDTO = {
   position?: string | undefined;
   dateOfBirth?: string | undefined;
   dateEmploy?: string | undefined;
+  haveSocialSecurity?: boolean;
+  socialSecurityNumber?: string;
   address1?: string | undefined;
   address2?: string | undefined;
   address3?: string | undefined;

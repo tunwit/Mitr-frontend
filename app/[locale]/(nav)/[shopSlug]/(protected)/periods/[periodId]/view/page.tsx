@@ -30,7 +30,7 @@ export default function ViewPeriodPage() {
 
   const [hideHeader, setHideHeader] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
-  const [filtered, setFiltered] = useState<EntryBreakDownDTO[]>([]);
+  const [advancedRows, setAdvancedRows] = useState<EntryBreakDownDTO[] | null>(null);
   const [query, setQuery] = useState("");
   const [debouced] = useDebounce(query, 500);
   const { periodId } = useParams();
@@ -40,9 +40,10 @@ export default function ViewPeriodPage() {
   const tBreadcrumb = useTranslations("breadcrumb");
   const pathname = usePathname();
   const router = useRouter();
-  const { name } = useCurrentShop();
+  const { name, slug } = useCurrentShop();
   const periodHook = usePeriod(Number(periodId));
   const slipMutate = usePeriodSlips(Number(periodId));
+
   const { data: periodData, isLoading: loadingPeriod } =
     periodHook.getFilterContext;
 
@@ -62,49 +63,20 @@ export default function ViewPeriodPage() {
     }
   }, [periodData]);
 
-  useEffect(() => {
-    if (!periodData?.data) return;
+  const filtered = useMemo(() => {
     const q = debouced.toLowerCase();
-
-    setFiltered(
-      periodData.data.breakdowns.filter((b) => {
-        const entry = b.entry;
-        return (
-          entry.employee.snapshot.firstName.toLowerCase().includes(q) ||
-          entry.employee.snapshot.lastName.toLowerCase().includes(q) ||
-          (entry.employee.snapshot.firstName + entry.employee.snapshot.lastName)
-            .toLowerCase()
-            .includes(q) ||
-          entry.employee.snapshot.nickName.toLowerCase().includes(q) ||
-          entry.employee.snapshot.branch.name.toLowerCase().includes(q) ||
-          entry.employee.snapshot.branch.nameEng.toLowerCase().includes(q)
-        );
-      }),
-    );
-  }, [periodData?.data, debouced]);
-
-  const filteredTotalNet = useMemo(() => {
-    return filtered.reduce((sum, r) => sum + (r.calculation.netPay || 0), 0);
-  }, [filtered]);
-
-  const filteredTotalEarning = useMemo(() => {
-    return filtered.reduce(
-      (sum, r) => sum + (r.calculation.summary.gross || 0),
-      0,
-    );
-  }, [filtered]);
-  const filteredTotalDeduction = useMemo(() => {
-    return filtered.reduce(
-      (sum, r) => sum + (r.calculation.summary.adjustment || 0),
-      0,
-    );
-  }, [filtered]);
-
-  const filteredTotalSalary = useMemo(() => {
-    return filtered.reduce((sum, r) => {
-      return sum + ("baseSalary" in r ? Number(r.baseSalary) || 0 : 0);
-    }, 0);
-  }, [filtered]);
+    return (advancedRows ?? periodData?.data?.breakdowns ?? []).filter(({ entry }) => {
+      const employee = entry.employee.snapshot;
+      return [
+        employee.firstName,
+        employee.lastName,
+        employee.firstName + employee.lastName,
+        employee.nickName,
+        employee.branch.name,
+        employee.branch.nameEng,
+      ].some((value) => value.toLowerCase().includes(q));
+    });
+  }, [advancedRows, periodData?.data?.breakdowns, debouced]);
 
   const period = periodData?.data;
   const isLoading = loadingPeriod || !period;
@@ -179,7 +151,10 @@ export default function ViewPeriodPage() {
                     { label: name },
                     { label: tBreadcrumb("dashboard") },
                     { label: tBreadcrumb("payrolls") },
-                    { label: tBreadcrumb("view_payroll") },
+                    {
+                      label: period?.name || "กำลังโหลด",
+                      href: `/${slug}/periods/${period?.id}/view`,
+                    },
                   ]}
                 />
                 <div className="mt-5 flex flex-row justify-between items-center   ">
@@ -496,9 +471,7 @@ export default function ViewPeriodPage() {
                 show={showFilter}
                 setShow={setShowFilter}
                 context={periodData.data}
-                onApply={(filteredBreakdowns) => {
-                  setFiltered(filteredBreakdowns);
-                }}
+                onApply={setAdvancedRows}
               />
             </div>
           </section>
@@ -506,12 +479,7 @@ export default function ViewPeriodPage() {
             {filtered.map((b) => {
               return <SummaryCard key={b.entry.id} breakdown={b} />;
             })}
-            <SummarySection
-              totalSalary={filteredTotalSalary}
-              totalDeduction={filteredTotalDeduction}
-              totalEarning={filteredTotalEarning}
-              totalNet={filteredTotalNet}
-            />
+            <SummarySection breakdowns={filtered} />
           </div>
         </section>
       </div>

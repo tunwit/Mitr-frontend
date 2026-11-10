@@ -9,6 +9,7 @@ import { getLocalizedName } from "@/lib/getLocalizedName";
 /* ---------------- TYPES ---------------- */
 
 type NumberOperator = "eq" | "neq" | "gt" | "gte" | "lt" | "lte";
+type BooleanField = "paid" | "currentSocialSecurityCoverage";
 
 type FilterRule =
   | {
@@ -21,7 +22,7 @@ type FilterRule =
   | {
       id: string;
       type: "boolean";
-      field: "paid";
+      field: BooleanField;
       operator: "eq" | "neq";
       value: boolean;
     };
@@ -42,6 +43,10 @@ const numberOperators: NumberOperator[] = [
   "lt",
   "lte",
 ];
+const booleanOperators = ["eq", "neq"] as const;
+
+const isBooleanField = (field: string): field is BooleanField =>
+  field === "paid" || field === "currentSocialSecurityCoverage";
 
 const numberOperatorsSymbol: Record<string, string> = {
   eq: "=",
@@ -82,6 +87,15 @@ const quickFilters = [
     label: "paid",
     filter: { type: "boolean", field: "paid", operator: "eq", value: true },
   },
+  {
+    label: "has_social_security",
+    filter: {
+      type: "boolean",
+      field: "currentSocialSecurityCoverage",
+      operator: "eq",
+      value: true,
+    },
+  },
 ] as const;
 
 /* ---------------- HELPERS ---------------- */
@@ -119,6 +133,9 @@ const buildValueMap = (entry: EntryBreakDownDTO) => {
   map["totalDeduction"] = entry.calculation.summary.adjustment;
   map["net"] = entry.calculation.netPay;
   map["paid"] = entry.entry.paidAt !== null;
+  if (typeof entry.currentSocialSecurityCoverage === "boolean") {
+    map.currentSocialSecurityCoverage = entry.currentSocialSecurityCoverage;
+  }
 
   return map;
 };
@@ -177,14 +194,14 @@ export default function AdvancedFilters<T extends { id: number }>({
 
       return filters.every((filter) => {
         const value = valueMap[filter.field];
-        if (value === undefined) return true;
-
         if (filter.type === "boolean") {
+          if (typeof value !== "boolean") return false;
           return filter.operator === "eq"
             ? value === filter.value
             : value !== filter.value;
         }
 
+        if (value === undefined) return true;
         if (typeof value !== "number") return false;
 
         return evaluateNumber(value, filter.operator, filter.value);
@@ -193,7 +210,7 @@ export default function AdvancedFilters<T extends { id: number }>({
   };
 
   const applyFilter = () => {
-    if (!context?.fields?.length) return;
+    if (!context) return;
 
     const filtered = applyFilterLogic(context.breakdowns, draftFilters);
 
@@ -205,11 +222,12 @@ export default function AdvancedFilters<T extends { id: number }>({
   const clearFilter = () => {
     setDraftFilters([]);
     setAppliedFilters([]);
+    if (context) onApply(context.breakdowns);
   };
 
   useEffect(() => {
     if (!context) return;
-    applyFilter();
+    onApply(applyFilterLogic(context.breakdowns, appliedFilters));
   }, [context]);
 
   if (!context) return null;
@@ -227,6 +245,11 @@ export default function AdvancedFilters<T extends { id: number }>({
     { id: "totalDeduction", name: "รายหัก", nameEng: "Deductions" },
     { id: "net", name: "ยอดสุทธิ", nameEng: "Net" },
     { id: "paid", name: "จ่ายเเล้ว", nameEng: "Paid" },
+    {
+      id: "currentSocialSecurityCoverage",
+      name: t("filters.current_social_security"),
+      nameEng: t("filters.current_social_security"),
+    },
   ];
 
   /* ---------------- ACTIONS ---------------- */
@@ -271,7 +294,6 @@ export default function AdvancedFilters<T extends { id: number }>({
 
   const removeFilter = (id: string) => {
     setDraftFilters((prev) => prev.filter((f) => f.id !== id));
-    setAppliedFilters((prev) => prev.filter((f) => f.id !== id));
   };
   const fieldMap = Object.fromEntries(extendedFields.map((f) => [f.id, f]));
   /* ---------------- UI ---------------- */
@@ -289,12 +311,17 @@ export default function AdvancedFilters<T extends { id: number }>({
                 fieldMap[a.field] || { name: a.field, nameEng: a.field },
                 locale,
               )}{" "}
-              {numberOperatorsSymbol[a.operator] || "unknown"} {a.value}
+              {numberOperatorsSymbol[a.operator]}{" "}
+              {a.type === "boolean"
+                ? t(a.value ? "filters.yes" : "filters.no")
+                : a.value}
             </p>
             <button
               onClick={() => {
                 removeFilter(a.id);
-                applyFilter();
+                const remaining = appliedFilters.filter((f) => f.id !== a.id);
+                setAppliedFilters(remaining);
+                onApply(applyFilterLogic(context.breakdowns, remaining));
               }}
             >
               <Icon icon="basil:cross-solid" fontSize={20} />
@@ -308,7 +335,7 @@ export default function AdvancedFilters<T extends { id: number }>({
         <p className="text-xs text-gray-700 mt-2">
           {t("filters.quick_filters.label")}
         </p>
-        <section className="flex gap-3">
+        <section className="flex flex-wrap gap-3">
           {quickFilters.map((q, i) => (
             <button
               key={i}
@@ -336,9 +363,26 @@ export default function AdvancedFilters<T extends { id: number }>({
                   <select
                     value={filter.field}
                     className="text-sm flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    onChange={(e) =>
-                      updateFilter(filter.id, { field: e.target.value })
-                    }
+                    onChange={(e) => {
+                      const field = e.target.value;
+                      if (isBooleanField(field)) {
+                        updateFilter(filter.id, {
+                          field,
+                          type: "boolean",
+                          operator: "eq",
+                          value: true,
+                        });
+                      } else if (filter.type === "boolean") {
+                        updateFilter(filter.id, {
+                          field,
+                          type: "number",
+                          operator: "eq",
+                          value: 0,
+                        });
+                      } else {
+                        updateFilter(filter.id, { field });
+                      }
+                    }}
                   >
                     {extendedFields.map((f) => (
                       <option key={f.id} value={f.id}>
@@ -360,7 +404,7 @@ export default function AdvancedFilters<T extends { id: number }>({
                       })
                     }
                   >
-                    {numberOperators.map((op) => (
+                    {(filter.type === "boolean" ? booleanOperators : numberOperators).map((op) => (
                       <option key={op} value={op}>
                         {numberOperatorsSymbol[op]} (
                         {t(`filters.operator.${op}`)})
@@ -369,7 +413,7 @@ export default function AdvancedFilters<T extends { id: number }>({
                   </select>
 
                   {/* Value Input */}
-                  {filter.field === "paid" ? (
+                  {filter.type === "boolean" ? (
                     <select
                       className="text-sm w-40 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       value={String(filter.value)}
@@ -379,8 +423,8 @@ export default function AdvancedFilters<T extends { id: number }>({
                         })
                       }
                     >
-                      <option value={"true"}>true</option>
-                      <option value={"false"}>false</option>
+                      <option value="true">{t("filters.yes")}</option>
+                      <option value="false">{t("filters.no")}</option>
                     </select>
                   ) : (
                     <NativeInput
@@ -421,7 +465,7 @@ export default function AdvancedFilters<T extends { id: number }>({
         <div className="flex flex-row-reverse border-t py-2 mt-2">
           <div className="space-x-3">
             <button
-              disabled={draftFilters.length === 0}
+              disabled={draftFilters.length === 0 && appliedFilters.length === 0}
               onClick={clearFilter}
               className="text-sm text-gray-700 disabled:text-gray-300"
             >

@@ -2,7 +2,7 @@
 import { NativeInput } from "@/widget/Input";
 import { usePeriod } from "@/hooks/payroll/period/hook.period";
 import { ISSUE_TYPE, ValidationResultDTO } from "@/types/payroll/type.validate";
-import { PeriodSummaryDTO } from "@/types/type.period";
+import type { PeriodFilterContextDTO } from "@/types/type.period";
 import { dateFormat, formatMetaMoney, moneyFormat } from "@/utils/formmatter";
 import { showError } from "@/utils/showSnackbar";
 import { useUser } from "@clerk/nextjs";
@@ -11,12 +11,13 @@ import { Button, Modal, ModalClose, ModalDialog } from "@mui/joy";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
 import React, { Dispatch, SetStateAction, useState } from "react";
+import { getPayrollSummaryTotals } from "../SummarySection";
 
 interface FinalizeModalPros {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
   setFinalizing: Dispatch<SetStateAction<boolean>>;
-  periodSummary?: PeriodSummaryDTO;
+  periodSummary?: PeriodFilterContextDTO;
   problems: ValidationResultDTO[];
 }
 export default function FinalizeModal({
@@ -59,6 +60,9 @@ export default function FinalizeModal({
     }
   };
   if (!periodSummary) return;
+
+  const { totalSalary, totalEarning, totalDeduction, totalNet } =
+    getPayrollSummaryTotals(periodSummary.breakdowns);
 
   return (
     <Modal open={open} onClose={() => setOpen(false)}>
@@ -122,7 +126,7 @@ export default function FinalizeModal({
                   {tr("fields.base_salary")}
                 </span>
                 <span className="font-medium text-gray-900">
-                  ฿ {moneyFormat(0)}
+                  ฿ {moneyFormat(totalSalary)}
                 </span>
               </div>
               <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
@@ -130,7 +134,7 @@ export default function FinalizeModal({
                   + {tr("fields.total_earning")}
                 </span>
                 <span className="font-medium text-green-700">
-                  ฿ {moneyFormat(periodSummary?.summary.gross || 0)}
+                  ฿ {moneyFormat(totalEarning)}
                 </span>
               </div>
               <div className="flex justify-between items-center p-3 bg-red-50 rounded-lg">
@@ -138,7 +142,7 @@ export default function FinalizeModal({
                   - {tr("fields.total_deduction")}
                 </span>
                 <span className="font-medium text-red-700">
-                  ฿ {moneyFormat(periodSummary?.summary.adjustment || 0)}
+                  ฿ {moneyFormat(totalDeduction)}
                 </span>
               </div>
               <div className="flex justify-between items-center p-4 bg-blue-100 rounded-lg border-2 border-blue-300">
@@ -153,7 +157,7 @@ export default function FinalizeModal({
                   </span>
                 </div>
                 <span className="text-2xl font-bold text-blue-900">
-                  ฿ {moneyFormat(periodSummary?.netPay || 0)}
+                  ฿ {moneyFormat(totalNet)}
                 </span>
               </div>
             </div>

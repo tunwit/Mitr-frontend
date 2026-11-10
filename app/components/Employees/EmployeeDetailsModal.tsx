@@ -116,6 +116,8 @@ export default function EmployeeDetailsModal({
         dateEmploy: employee.dateEmploy
           ? new Date(employee.dateEmploy)
           : undefined,
+        haveSocialSecurity: employee.haveSocialSecurity ?? false,
+        socialSecurityNumber: employee.socialSecurityNumber ?? "",
         bankName: employee.bankName,
         bankAccountNumber: employee.bankAccountNumber,
         bankBranchCode: employee.bankBranchCode,
@@ -152,8 +154,6 @@ export default function EmployeeDetailsModal({
       salary: number;
     },
   ) => {
-    console.log(shopId, employee);
-
     if (!shopId || !employee) return;
 
     const { salary, dateEmploy, dateOfBirth, ...rest } = buildDirtyPayload(

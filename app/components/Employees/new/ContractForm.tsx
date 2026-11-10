@@ -19,6 +19,7 @@ import { ZodForm } from "@/lib/useZodForm";
 import dayjs from "dayjs";
 import DatePickerLocalize from "@/widget/DatePickerLocalize";
 import { useTranslations } from "next-intl";
+import SocialSecurityFields from "../SocialSecurityFields";
 
 interface ContractFormProps {
   setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
@@ -176,6 +177,7 @@ export default function ContractForm({ setCurrentPage }: ContractFormProps) {
             />
           </FormControl>
         </div>
+        <SocialSecurityFields />
       </div>
 
       <div className="flex justify-end items-center mt-5 gap-3 mr-5">

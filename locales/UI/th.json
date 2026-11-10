@@ -27,7 +27,7 @@
   },
   "navigation": {
     "dashboard": "ภาพรวม",
-    "configure": "แก้ไข",
+    "system": "ระบบ",
     "employees": "พนักงาน",
     "documents": "เอกสาร",
     "payrolls": "เงินเดือน",
@@ -164,6 +164,8 @@
       "date_of_employ": "วันที่จ้าง",
       "bank": "ธนาคาร",
       "bank_account_number": "เลขบัญชีธนาคาร",
+      "have_social_security": "มีประกันสังคม",
+      "social_security_number": "เลขประกันสังคม (ไม่บังคับ)",
       "bank_account_owner": "เจ้าของบัญชีธนาคาร",
       "promtpay": "พร้อมเพย์ (เบอร์โทร, เลขบัตรประชาชน)",
       "bank_branch_code": "รหัสสาขาธนาคาร (4 หลัก สำหรับ SMART Payroll)"
@@ -334,8 +336,12 @@
       "label": "ค้นหาพนักงาน",
       "placeholder": "ค้นหาเงินเดือน"
     },
+    "sections": {
+      "awaiting_payment": "รอจ่ายเงิน"
+    },
     "info": {
-      "people": "คน"
+      "people": "คน",
+      "unpaid_employees": "รอจ่าย {count} คน"
     }
   },
   "period": {
@@ -378,6 +384,9 @@
     "filters": {
       "label": "กรอง",
       "title": "กรองขั้นสูง",
+      "current_social_security": "สถานะประกันสังคมปัจจุบัน",
+      "yes": "ใช่",
+      "no": "ไม่ใช่",
       "no_filter": "ไม่มีการกรอง กด \"เพิ่มตัวกรอง\" เพื่อสร้าง",
       "actions": {
         "add_filter": "เพิ่มตัวกรอง",
@@ -392,6 +401,7 @@
           "no_deduction": "ไม่มีรายหัก",
           "high_earners": "รายได้สูง (>20k)",
           "low_earners": "รายได้ต่ำ (<16k)",
+          "has_social_security": "มีประกันสังคม",
           "paid": "จ่ายแล้ว"
         }
       },
@@ -406,8 +416,7 @@
     },
     "status": {
       "draft": "กำลังแก้ไข",
-      "finalized": "ปิดรอบแล้ว",
-      "paid": "จ่ายเเล้ว"
+      "finalized": "ปิดรอบแล้ว"
     },
     "modal": {
       "save": {
@@ -673,6 +682,7 @@
       }
     },
     "info": {
+      "awaiting_payment": "รอจ่ายเงิน",
       "qr_not_available": "QR ไม่พร้อมใช้งาน"
     }
   },
@@ -923,7 +933,7 @@
     "removeAccount": "ลบบัญชี",
     "fundingAccount": "บัญชีสำหรับจ่ายเงินเดือน",
     "recipients": "พนักงานที่รับเงิน",
-    "exportSummary": "สรุปการสร้างไฟล์",
+    "exportSummary": "ตั้งค่าสร้างไฟล์",
     "needsAttentionCount": "ต้องตรวจสอบ ({count})",
     "selectVisible": "เลือกพนักงานที่แสดงทั้งหมด",
     "showEveryone": "แสดงทุกคน",

@@ -28,6 +28,20 @@ export default function PeriodsPage() {
   const t = useTranslations("payrolls");
   const tPeriod = useTranslations("period");
 
+  const payrolls = data?.data ?? [];
+  const drafts = payrolls.filter(
+    ({ status }) => status === PAY_PERIOD_STATUS.DRAFT,
+  );
+  const finalized = payrolls.filter(
+    ({ status }) => status === PAY_PERIOD_STATUS.FINALIZED,
+  );
+  const awaitingPayment = finalized.filter(
+    ({ unpaidEmployeeCount }) => unpaidEmployeeCount > 0,
+  );
+  const completed = finalized.filter(
+    ({ unpaidEmployeeCount }) => unpaidEmployeeCount === 0,
+  );
+
   const newHandler = async () => {
     setCreatingPeriod(true);
     try {
@@ -101,50 +115,29 @@ export default function PeriodsPage() {
         </section>
 
         <section className="mt-5 space-y-5">
-          {data?.data &&
-            data?.data?.filter(
-              (period) => period.status === PAY_PERIOD_STATUS.DRAFT,
-            ).length > 0 && (
-              <PeriodsTable
-                title={tPeriod("status.draft")}
-                color="gray"
-                periods={
-                  data?.data?.filter(
-                    (period) => period.status === PAY_PERIOD_STATUS.DRAFT,
-                  ) || []
-                }
-              />
-            )}
-          {data?.data &&
-            data?.data?.filter(
-              (period) => period.status === PAY_PERIOD_STATUS.FINALIZED,
-            ).length > 0 && (
-              <PeriodsTable
-                title={tPeriod("status.finalized")}
-                color="green"
-                editable={false}
-                periods={
-                  data?.data?.filter(
-                    (period) => period.status === PAY_PERIOD_STATUS.FINALIZED,
-                  ) || []
-                }
-              />
-            )}
-          {data?.data &&
-            data?.data?.filter(
-              (period) => period.status === PAY_PERIOD_STATUS.PAID,
-            ).length > 0 && (
-              <PeriodsTable
-                title={tPeriod("status.paid")}
-                color="grey"
-                editable={false}
-                periods={
-                  data?.data?.filter(
-                    (period) => period.status === PAY_PERIOD_STATUS.PAID,
-                  ) || []
-                }
-              />
-            )}
+          {drafts.length > 0 && (
+            <PeriodsTable
+              title={tPeriod("status.draft")}
+              color="gray"
+              periods={drafts}
+            />
+          )}
+          {awaitingPayment.length > 0 && (
+            <PeriodsTable
+              title={t("sections.awaiting_payment")}
+              color="amber"
+              editable={false}
+              periods={awaitingPayment}
+            />
+          )}
+          {completed.length > 0 && (
+            <PeriodsTable
+              title={tPeriod("status.finalized")}
+              color="green"
+              editable={false}
+              periods={completed}
+            />
+          )}
         </section>
       </div>
     </main>

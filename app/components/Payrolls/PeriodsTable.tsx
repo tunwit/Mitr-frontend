@@ -26,7 +26,7 @@ interface PeriodsTableProps {
 const headerColors: Record<string, string> = {
   gray: "bg-gray-50 border-gray-200",
   green: "bg-green-50 border-green-200",
-  grey: "bg-gray-50 border-gray-200",
+  amber: "bg-amber-50 border-amber-200",
 };
 
 const getStatusBadge = (
@@ -36,13 +36,11 @@ const getStatusBadge = (
   const styles = {
     [PAY_PERIOD_STATUS.DRAFT]: "bg-gray-100 text-gray-800",
     [PAY_PERIOD_STATUS.FINALIZED]: "bg-green-100 text-green-800",
-    [PAY_PERIOD_STATUS.PAID]: "bg-green-100 text-green-800",
   };
 
   const icons = {
     [PAY_PERIOD_STATUS.DRAFT]: <Icon icon="mdi:clock-outline" />,
     [PAY_PERIOD_STATUS.FINALIZED]: <Icon icon="lets-icons:check-fill" />,
-    [PAY_PERIOD_STATUS.PAID]: <Icon icon="lets-icons:check-fill" />,
   };
 
   return (
@@ -127,8 +125,13 @@ export default function PeriodsTable({
             )}
             {!editable && (
               <Icon
-                icon="simple-line-icons:check"
-                className="text-green-700"
+                icon={
+                  color === "amber" ? "mdi:clock-outline" : "simple-line-icons:check"
+                }
+                className={
+                  color === "amber" ? "text-amber-800" : "text-green-700"
+                }
+                aria-hidden
                 fontSize={15}
               />
             )}
@@ -168,6 +171,14 @@ export default function PeriodsTable({
                       <UsersIcon />
                       {payroll.employeeCount} {t("info.people")}
                     </p>
+                    {payroll.status === PAY_PERIOD_STATUS.FINALIZED &&
+                      payroll.unpaidEmployeeCount > 0 && (
+                        <p className="mt-1 text-sm font-medium tabular-nums text-amber-800">
+                          {t("info.unpaid_employees", {
+                            count: payroll.unpaidEmployeeCount,
+                          })}
+                        </p>
+                      )}
                   </div>
 
                   <div>

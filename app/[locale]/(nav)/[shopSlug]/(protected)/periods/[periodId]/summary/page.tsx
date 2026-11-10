@@ -28,7 +28,7 @@ export default function Home() {
   const [finalizing, setFinalizing] = useState(false);
   const [query, setQuery] = useState("");
   const [debouced] = useDebounce(query, 500);
-  const [filtered, setFiltered] = useState<EntryBreakDownDTO[]>([]);
+  const [advancedRows, setAdvancedRows] = useState<EntryBreakDownDTO[] | null>(null);
   const [showFilter, setShowFilter] = useState(false);
   const { name } = useCurrentShop();
 
@@ -63,26 +63,20 @@ export default function Home() {
     router.push(`${newPath}`);
   };
 
-  useEffect(() => {
-    if (!periodData?.data) return;
+  const filtered = useMemo(() => {
     const q = debouced.toLowerCase();
-
-    setFiltered(
-      periodData?.data?.breakdowns.filter((b) => {
-        const entry = b.entry;
-        return (
-          entry.employee.snapshot.firstName.toLowerCase().includes(q) ||
-          entry.employee.snapshot.lastName.toLowerCase().includes(q) ||
-          (entry.employee.snapshot.firstName + entry.employee.snapshot.lastName)
-            .toLowerCase()
-            .includes(q) ||
-          entry.employee.snapshot.nickName.toLowerCase().includes(q) ||
-          entry.employee.snapshot.branch.name.toLowerCase().includes(q) ||
-          entry.employee.snapshot.branch.nameEng.toLowerCase().includes(q)
-        );
-      }),
-    );
-  }, [periodData?.data, debouced]);
+    return (advancedRows ?? periodData?.data?.breakdowns ?? []).filter(({ entry }) => {
+      const employee = entry.employee.snapshot;
+      return [
+        employee.firstName,
+        employee.lastName,
+        employee.firstName + employee.lastName,
+        employee.nickName,
+        employee.branch.name,
+        employee.branch.nameEng,
+      ].some((value) => value.toLowerCase().includes(q));
+    });
+  }, [advancedRows, periodData?.data?.breakdowns, debouced]);
 
   const isLoading =
     loadingPeriod || loadingValidate || finalizing || !periodData?.data;
@@ -92,29 +86,6 @@ export default function Home() {
   if (loadingPeriod) loadingMessage = tPeriod("load.loading_payrolls");
   if (loadingPeriod) loadingMessage = tPeriod("load.loading_records");
   if (loadingValidate) loadingMessage = t("load.verifying");
-
-  const filteredTotalNet = useMemo(() => {
-    return filtered.reduce((sum, b) => sum + (b.calculation.netPay || 0), 0);
-  }, [filtered]);
-
-  const filteredTotalEarning = useMemo(() => {
-    return filtered.reduce(
-      (sum, b) => sum + (b.calculation.summary.gross || 0),
-      0,
-    );
-  }, [filtered]);
-  const filteredTotalDeduction = useMemo(() => {
-    return filtered.reduce(
-      (sum, b) => sum + (b.calculation.summary.adjustment || 0),
-      0,
-    );
-  }, [filtered]);
-
-  const filteredTotalSalary = useMemo(() => {
-    return filtered.reduce((sum, b) => {
-      return sum + ("baseSalary" in b ? Number(b.entry.salary) || 0 : 0);
-    }, 0);
-  }, [filtered]);
 
   if (isLoading)
     return (
@@ -257,9 +228,7 @@ export default function Home() {
               show={showFilter}
               setShow={setShowFilter}
               context={periodData?.data}
-              onApply={(filteredBreakdowns) => {
-                setFiltered(filteredBreakdowns);
-              }}
+              onApply={setAdvancedRows}
             />
           </div>
         </section>
@@ -270,12 +239,7 @@ export default function Home() {
           })}
         </section>
         <section className="px-10 mb-5">
-          <SummarySection
-            totalSalary={filteredTotalSalary}
-            totalDeduction={filteredTotalDeduction}
-            totalEarning={filteredTotalEarning}
-            totalNet={filteredTotalNet}
-          />
+          <SummarySection breakdowns={filtered} />
         </section>
       </div>
     </main>

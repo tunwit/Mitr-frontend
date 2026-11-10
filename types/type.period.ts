@@ -20,6 +20,7 @@ export type PeriodPublicDTO = {
 
 export type PeriodWithCountDTO = PeriodPublicDTO & {
   employeeCount: number;
+  unpaidEmployeeCount: number;
 };
 export type PeriodSummaryDTO = PeriodWithCountDTO & CalculationContext;
 

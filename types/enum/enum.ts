@@ -21,11 +21,7 @@ export enum EMPLOYEE_ORDERBY {
   DES = "DES",
 }
 
-export enum PAY_PERIOD_STATUS {
-  DRAFT = "DRAFT",
-  FINALIZED = "FINALIZED",
-  PAID = "PAID",
-}
+export { PAY_PERIOD_STATUS } from "./enum.period";
 
 export enum OT_TYPE {
   CONSTANT = "CONSTANT",

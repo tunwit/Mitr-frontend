@@ -26,10 +26,9 @@ export default function PaymentCard({
   breakdown,
   paymentDetails,
 }: SummaryCardProps) {
-  console.log("redewr");
-
-  const [paid, setPaid] = useState(!!breakdown.entry.paidAt);
-  const { mutateAsync: setPaidMutate } = useEntry(Number(periodId)).setPaid;
+  const paid = !!breakdown.entry.paidAt;
+  const { mutateAsync: setPaidMutate, isPending: isUpdatingPayment } =
+    useEntry(Number(periodId)).setPaid;
   const [expanded, setExpanded] = useState(false);
   const [showBreakdown, setShowBreakdown] = useState(false);
   const te = useTranslations("employees");
@@ -45,14 +44,12 @@ export default function PaymentCard({
     setTimeout(() => setCopiedId(""), 2000);
   };
   const handleMarkedAsPaid = async (setTo: boolean) => {
-    setPaid(setTo);
     try {
       await setPaidMutate({
         payload: { entryId: breakdown.entry.id, paid: setTo },
       });
     } catch (err) {
       showError(`fail to mark as paid ${err}`);
-      setPaid(!setTo);
     }
   };
 
@@ -226,10 +223,11 @@ export default function PaymentCard({
                     </div>
                     <button
                       hidden={paid}
+                      disabled={isUpdatingPayment}
                       onClick={() => {
                         handleMarkedAsPaid(true);
                       }}
-                      className="  bg-blue-600 text-white py-2 px-3 text-sm rounded-lg"
+                      className="bg-blue-600 text-white py-2 px-3 text-sm rounded-lg disabled:opacity-60"
                     >
                       {tr("actions.mark_as_paid")}
                     </button>
@@ -238,7 +236,8 @@ export default function PaymentCard({
                         handleMarkedAsPaid(false);
                       }}
                       hidden={!paid}
-                      className="  bg-green-600 text-white py-2 px-3 text-sm rounded-lg"
+                      disabled={isUpdatingPayment}
+                      className="bg-green-600 text-white py-2 px-3 text-sm rounded-lg disabled:opacity-60"
                     >
                       {tr("actions.unmarked")}
                     </button>

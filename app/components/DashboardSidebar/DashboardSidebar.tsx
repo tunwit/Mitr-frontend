@@ -220,7 +220,7 @@ export default function DashboardSidebar() {
         </div>
 
         <p className="pl-4 text-xs text-[#797979] font-bold mt-10 mb-4">
-          {t("configure")}
+          {t("system")}
         </p>
         <div className="pl-3 flex flex-col text-sm gap-1">
           {ConfigureRails.map((v, i) => {

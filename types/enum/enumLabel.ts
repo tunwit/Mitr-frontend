@@ -15,7 +15,6 @@ export const EMPLOYEE_STATUS_LABELS: Record<EMPLOYEE_STATUS, string> = {
 export const PAY_PERIOD_STATUS_LABELS: Record<PAY_PERIOD_STATUS ,string> = {
   [PAY_PERIOD_STATUS.DRAFT]: "Draft",
   [PAY_PERIOD_STATUS.FINALIZED]: "Finalized",
-  [PAY_PERIOD_STATUS.PAID]: "Paid",
 };
 
 export const OT_TYPE_LABELS: Record<OT_TYPE, string> = {

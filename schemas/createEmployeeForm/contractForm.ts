@@ -7,6 +7,8 @@ export const contractSchema = z.object({
     .gte(0, "Salary must >= 0"),
   position: z.string().min(1, "Position is required"),
   dateEmploy: z.date({ required_error: "Employ date is required" }).optional(),
+  haveSocialSecurity: z.boolean(),
+  socialSecurityNumber: z.string().trim().max(64).optional(),
   bankName: z.string().trim().optional().or(z.literal("")),
   bankAccountNumber: z
     .string()

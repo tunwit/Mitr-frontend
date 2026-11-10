@@ -37,12 +37,6 @@ const PayrollStatus: {
     bg: "bg-amber-200",
     textColor: "text-amber-950",
   },
-  [PAY_PERIOD_STATUS.PAID]: {
-    icon: "mdi:currency-usd",
-    text: "Paid",
-    bg: "bg-green-200",
-    textColor: "text-green-950",
-  },
 };
 
 export default function PendingElement({

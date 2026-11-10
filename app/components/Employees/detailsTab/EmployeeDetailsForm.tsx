@@ -5,7 +5,7 @@ import React, { Suspense, useState } from "react";
 import BranchSelector from "../../../../widget/BranchSelector";
 import { EmployeeDetailedDTO } from "@/types/type.employee";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
-import { createEmployeeFormSchema } from "@/types/formField";
+import { updateEmployeeFormSchema } from "@/types/formField";
 import GenderSelector from "@/widget/GenderSelector";
 import DatePickerLocalize from "@/widget/DatePickerLocalize";
 import dayjs from "dayjs";
@@ -15,6 +15,7 @@ import { InputForm } from "@/widget/InputForm";
 import { z } from "zod";
 import { useTranslations } from "next-intl";
 import QRPromptpayModal from "./QRPromptpayModal";
+import SocialSecurityFields from "../SocialSecurityFields";
 
 export default function EmployeeDetailsForm({
   employee,
@@ -25,8 +26,8 @@ export default function EmployeeDetailsForm({
     control,
     handleSubmit,
     formState: { errors },
-  } = useFormContext<z.infer<typeof createEmployeeFormSchema>>() as ZodForm<
-    typeof createEmployeeFormSchema
+  } = useFormContext<z.infer<typeof updateEmployeeFormSchema>>() as ZodForm<
+    typeof updateEmployeeFormSchema
   >;
   const [showQR, setShowQR] = useState(false);
   const tn = useTranslations("new_employees");
@@ -258,6 +259,7 @@ export default function EmployeeDetailsForm({
                   )}
                 />
               </FormControl>
+              <SocialSecurityFields />
             </div>
           </div>
         </div>

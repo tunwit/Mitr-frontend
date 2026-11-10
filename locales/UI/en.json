@@ -27,7 +27,7 @@
   },
   "navigation": {
     "dashboard": "Dashboard",
-    "configure": "Configure",
+    "system": "System",
     "employees": "Employees",
     "documents": "Documents",
     "payrolls": "Payrolls",
@@ -164,6 +164,8 @@
       "date_of_employ": "Employment date",
       "bank": "Bank",
       "bank_account_number": "Bank account number",
+      "have_social_security": "Has social security coverage",
+      "social_security_number": "Social security number (optional)",
       "bank_account_owner": "Account holder",
       "promtpay": "PromptPay (phone number or national ID)",
       "bank_branch_code": "Bank branch code (4 digits, for SMART payroll)"
@@ -334,8 +336,12 @@
       "label": "Search employees",
       "placeholder": "Search payrolls"
     },
+    "sections": {
+      "awaiting_payment": "Awaiting payment"
+    },
     "info": {
-      "people": "people"
+      "people": "people",
+      "unpaid_employees": "{count, plural, one {# employee unpaid} other {# employees unpaid}}"
     }
   },
   "period": {
@@ -378,6 +384,9 @@
     "filters": {
       "label": "Filters",
       "title": "Advanced filters",
+      "current_social_security": "Current social security coverage",
+      "yes": "Yes",
+      "no": "No",
       "no_filter": "No filters applied. Click \"Add filter\" to create one",
       "actions": {
         "add_filter": "Add filter",
@@ -392,6 +401,7 @@
           "no_deduction": "No deductions",
           "high_earners": "High earners (>20k)",
           "low_earners": "Low earners (<16k)",
+          "has_social_security": "Has social security",
           "paid": "Paid"
         }
       },
@@ -406,8 +416,7 @@
     },
     "status": {
       "draft": "Draft",
-      "finalized": "Finalized",
-      "paid": "Paid"
+      "finalized": "Finalized"
     },
     "modal": {
       "save": {
@@ -673,6 +682,7 @@
       }
     },
     "info": {
+      "awaiting_payment": "Awaiting payment",
       "qr_not_available": "QR code not available"
     }
   },

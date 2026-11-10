@@ -119,6 +119,7 @@ export function useEntry(periodId: number) {
         body: { paid: payload.paid },
       });
     },
+    onSuccess: refreshPeriod,
   });
 
   return { list, create, remove, setPaid, applyPreset };

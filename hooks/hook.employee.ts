@@ -118,7 +118,7 @@ export const useEmployeeStats = () => {
 export const useEmployee = (employeeId: number) => {
   const { id: shopId } = useCurrentShop();
   const query = useQuery<ApiResponse<EmployeeDetailedDTO>>({
-    queryKey: ["employees", "empid", employeeId],
+    queryKey: ["employees", "empid", shopId, employeeId],
     queryFn: () =>
       fetchwithauth({
         endpoint: `/shops/${shopId}/employees/${employeeId}`,
@@ -126,7 +126,6 @@ export const useEmployee = (employeeId: number) => {
       }),
     enabled: shopId != null && employeeId != null && employeeId !== -1,
     refetchOnWindowFocus: true,
-    placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 5,
   });
 

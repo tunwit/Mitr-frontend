@@ -48,6 +48,7 @@ export type EntrySummaryDTO = {
 
 export type EntryBreakDownDTO = {
   entry: EntryPublicDTO;
+  currentSocialSecurityCoverage: boolean | null;
   items: PayrollItemsDTO;
   calculation: CalculationContext;
 };

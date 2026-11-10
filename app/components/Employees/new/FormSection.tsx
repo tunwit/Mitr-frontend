@@ -54,6 +54,8 @@ export default function FormSection({
       salary: 0,
       position: "",
       dateEmploy: new Date(),
+      haveSocialSecurity: false,
+      socialSecurityNumber: "",
       bankName: "",
       bankAccountNumber: "",
       bankBranchCode: "",

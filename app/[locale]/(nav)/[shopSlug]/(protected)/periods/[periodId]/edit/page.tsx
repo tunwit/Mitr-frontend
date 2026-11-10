@@ -72,7 +72,7 @@ export default function EditPeriodPage() {
   const [titleDebounced] = useDebounce(periodTitle, 1000);
   const [debouncedDateRange] = useDebounce(dateRange, 500);
 
-  const [filterdRecord, setFilterdRecord] = useState<EntryWithTotalDTO[]>([]);
+  const [advancedRows, setAdvancedRows] = useState<EntryWithTotalDTO[] | null>(null);
   const tPeriod = useTranslations("period");
   const tBreadcrumb = useTranslations("breadcrumb");
 
@@ -132,11 +132,6 @@ export default function EditPeriodPage() {
       exact: false,
     });
   }, [titleDebounced, debouncedDateRange]);
-
-  useEffect(() => {
-    if (!data?.data) return;
-    setFilterdRecord(data.data);
-  }, [data]);
 
   useEffect(() => {
     if (!periodData?.data) return;
@@ -412,7 +407,7 @@ export default function EditPeriodPage() {
                   ...b.entry,
                   ...b.calculation,
                 }));
-                setFilterdRecord(mapped);
+                setAdvancedRows(mapped);
               }}
             />
           </div>
@@ -434,7 +429,7 @@ export default function EditPeriodPage() {
               searchQuery={debouced}
               checkBoxMethod={methods}
               periodData={periodData?.data}
-              displayEntries={filterdRecord || []}
+              displayEntries={advancedRows ?? data?.data ?? []}
               totalEntries={data?.data?.length ?? 0}
               totalNetPay={periodData?.data?.netPay ?? 0}
               setSelected={setSelectedRecord}

@@ -36,6 +36,7 @@ export default function PaymentPage() {
   const [query, setQuery] = useState("");
   const [debounced] = useDebounce(query, 300);
   const [advancedIds, setAdvancedIds] = useState<number[] | null>(null);
+
   const {
     data: periodData,
     isLoading,
@@ -43,6 +44,7 @@ export default function PaymentPage() {
     refetch,
   } = usePeriod(Number(periodId)).getContextWithPayment;
   const period = periodData?.data;
+  const unpaidCount = period?.unpaidEmployeeCount ?? 0;
   useEffect(() => {
     if (period?.status === PAY_PERIOD_STATUS.DRAFT)
       router.replace(pathname.replace(/\/payment$/, "/edit"));
@@ -72,6 +74,10 @@ export default function PaymentPage() {
           items={[
             { label: name },
             { label: tBreadcrumb("payrolls"), href: `/${slug}/periods` },
+            {
+              label: period?.name || "กำลังโหลด",
+              href: `/${slug}/periods/${period?.id}/view`,
+            },
             { label: tBreadcrumb("payment_payroll") },
           ]}
         />
@@ -118,6 +124,18 @@ export default function PaymentPage() {
                 <dt>{tPeriod("fields.employees")}</dt>
                 <dd className="font-medium text-slate-900">
                   {period.employeeCount}
+                </dd>
+              </div>
+              <div
+                className="flex items-baseline gap-2"
+                aria-live="polite"
+                aria-atomic="true"
+              >
+                <dt className="text-slate-600">{tp("info.awaiting_payment")}</dt>
+                <dd
+                  className={`font-semibold tabular-nums ${unpaidCount > 0 ? "text-amber-800" : "text-slate-900"}`}
+                >
+                  {unpaidCount}
                 </dd>
               </div>
               <div className="flex items-baseline gap-2">
