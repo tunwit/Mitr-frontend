@@ -30,29 +30,29 @@ export function EmployeeTableWrapper({
   status,
 }: EmployeeTableWrapperProps) {
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(15);
   const [targetEmployee, setTargetEmployee] = useState(-1);
   const [openEmployeeModal, setOpenEmployeeModal] = useState(false);
 
-  const { data, isError, isSuccess, isLoading } = useEmployees({
+  const { data, isPlaceholderData, isSuccess, isLoading } = useEmployees({
     sortBy,
     orderBy,
     search_query,
     branchId,
     status,
     page,
-    limit,
+    limit: 15,
   });
+  const totalPages = data?.pagination.totalPages ?? 0;
+  const lastPage = Math.max(1, totalPages);
+  if (data && !isPlaceholderData && page > lastPage) {
+    setPage(lastPage);
+  }
 
   const { checked, uncheckall } = useCheckBox<number>("allEmployeeTable");
   const { id: shopId } = useCurrentShop();
   const t = useTranslations("employees");
   const tnm = useTranslations("new_employees.modal.delete");
   const { mutateAsync: deleteMutate } = useDeleteEmployee();
-
-  const onPageChange = (page: number) => {
-    setPage(page);
-  };
 
   const onDeleteEmployee = async () => {
     try {
@@ -98,9 +98,10 @@ export function EmployeeTableWrapper({
           </div>
         </div>
         <Pagination
-          totalPages={data?.pagination.totalPages || 1}
-          page={data?.pagination.page || 1}
-          onPageChange={onPageChange}
+          totalPages={totalPages}
+          page={page}
+          onPageChange={setPage}
+          disabled={isPlaceholderData}
         />
       </section>
     </>

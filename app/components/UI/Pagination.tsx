@@ -5,12 +5,16 @@ interface PaginationProps {
   page: number;
   totalPages: number;
   onPageChange: (p: number) => void;
+  disabled?: boolean;
 }
 export default function Pagination({
   page,
   totalPages,
   onPageChange,
+  disabled = false,
 }: PaginationProps) {
+  if (totalPages < 1) return null;
+
   const generatePageNumbers = () => {
     const delta = 2;
     const range = [];
@@ -56,21 +60,24 @@ export default function Pagination({
       mt={2}
     >
       <IconButton
+        type="button"
         size="sm"
         variant="outlined"
-        disabled={page === 1}
-        onClick={() => onPageChange(page - 1)}
+        disabled={disabled || page <= 1}
+        onClick={() => onPageChange(Math.min(page - 1, totalPages))}
       >
         <ArrowBackIcon fontSize="small" />
       </IconButton>
 
       {pageNumbers.map((p, index) => (
         <Button
+          type="button"
           key={index}
           variant={p === page ? "solid" : "outlined"}
           color="neutral"
           size="sm"
-          disabled={p === "..."}
+          aria-current={p === page ? "page" : undefined}
+          disabled={disabled || p === "..."}
           onClick={() => typeof p === "number" && onPageChange(p)}
         >
           {p}
@@ -78,9 +85,10 @@ export default function Pagination({
       ))}
 
       <IconButton
+        type="button"
         size="sm"
         variant="outlined"
-        disabled={page === totalPages}
+        disabled={disabled || page >= totalPages}
         onClick={() => onPageChange(page + 1)}
       >
         <ArrowForwardIcon fontSize="small" />

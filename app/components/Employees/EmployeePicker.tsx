@@ -29,6 +29,11 @@ export default function EmployeePicker({
   const [page, setPage] = useState(1);
   const [branchId, setBranchId] = useState(-1);
   const employees = useEmployees({ search_query: debounced, branchId, page });
+  const totalPages = employees.data?.pagination.totalPages ?? 0;
+  const lastPage = Math.max(1, totalPages);
+  if (employees.data && !employees.isPlaceholderData && page > lastPage) {
+    setPage(lastPage);
+  }
   const locale = useLocale();
   const te = useTranslations("employees");
   const t = useTranslations("employee_presets");
@@ -164,9 +169,10 @@ export default function EmployeePicker({
       )}
       <div className="flex justify-center">
         <Pagination
-          totalPages={employees.data?.pagination.totalPages || 1}
+          totalPages={totalPages}
           page={page}
           onPageChange={setPage}
+          disabled={search !== debounced || employees.isPlaceholderData}
         />
       </div>
     </fieldset>

@@ -129,6 +129,7 @@ export default function Home() {
           </div>
           <div className="flex justify-center mt-5">
             <EmployeeTableWrapper
+              key={JSON.stringify([debounced, branchId, status, sortBy, orderBy])}
               sortBy={sortBy}
               orderBy={orderBy}
               search_query={debounced}
