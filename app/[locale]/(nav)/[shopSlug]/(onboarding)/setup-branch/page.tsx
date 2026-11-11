@@ -1,5 +1,7 @@
 "use client";
 
+import Breadcrumbs from "@/widget/Breadcrumbs";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useZodForm } from "@/lib/useZodForm";
 import { branchSchema } from "@/schemas/setting/branchForm";
@@ -14,7 +16,8 @@ import { useCurrentShop } from "@/hooks/shop/useCurrentShop";
 
 export default function SetupBranchPage() {
   const router = useRouter();
-  const { id:shopId } = useCurrentShop();
+  const { id: shopId, name } = useCurrentShop();
+  const tb = useTranslations("breadcrumb");
   const method = useZodForm(branchSchema);
   const { mutateAsync } = useCreateBranch();
   const {
@@ -45,8 +48,12 @@ export default function SetupBranchPage() {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gray-50 px-4">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 ">
+    <div className="page-gutter flex h-full w-full flex-col items-center gap-5 overflow-y-auto bg-gray-50 py-10">
+      <Breadcrumbs
+        className="w-full"
+        items={[{ label: name }, { label: tb("setup_branch") }]}
+      />
+      <div className="my-auto max-w-md w-full bg-white rounded-lg shadow-lg p-8 ">
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg
