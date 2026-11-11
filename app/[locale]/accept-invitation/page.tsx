@@ -1,4 +1,6 @@
 "use client";
+import Breadcrumbs from "@/widget/Breadcrumbs";
+import { useTranslations } from "next-intl";
 import { useSession, useSignIn } from "@clerk/nextjs";
 import { Button, FormControl } from "@mui/joy";
 import { useEffect, useState } from "react";
@@ -9,6 +11,7 @@ import { useOwnShop } from "@/hooks/hook.shop";
 import { useSearchParams } from "next/navigation";
 
 export default function InvitaionPage() {
+  const tb = useTranslations("breadcrumb");
   const params = useSearchParams();
   const token = params.get("token");
   const method = params.get("method");
@@ -77,12 +80,19 @@ export default function InvitaionPage() {
 
   const loading = loadinginvitation || !sessionLoaded || loadingshops;
 
-  if (!token) return <p>Invalid token</p>;
+  if (!token)
+    return (
+      <div className="page-gutter w-full space-y-5 py-10">
+        <Breadcrumbs items={[{ label: tb("accept_invitation") }]} />
+        <p>Invalid token</p>
+      </div>
+    );
 
   if (loading) {
     return (
-      <div className="min-h-screen w-screen flex items-center justify-center">
-        <p>Loading invitation...</p>
+      <div className="page-gutter flex min-h-screen w-full flex-col items-center gap-5 py-10">
+        <Breadcrumbs className="w-full" items={[{ label: tb("accept_invitation") }]} />
+        <p className="my-auto">Loading invitation...</p>
       </div>
     );
   }
@@ -150,8 +160,9 @@ export default function InvitaionPage() {
   }
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gray-50 px-4">
-      <div className="max-w-lg w-full bg-white rounded-lg shadow-lg p-8">
+    <div className="page-gutter flex min-h-screen w-full flex-col items-center gap-5 bg-gray-50 py-10">
+      <Breadcrumbs className="w-full" items={[{ label: tb("accept_invitation") }]} />
+      <div className="my-auto max-w-lg w-full bg-white rounded-lg shadow-lg p-8">
         <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
           <svg
             className="w-8 h-8 text-blue-600"
