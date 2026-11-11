@@ -99,7 +99,9 @@ export default function OwnersTable() {
               key: "lastSigninAt",
               label: t("fields.last_signin_at"),
               render: (r) =>
-                formatModifiedTime(new Date(r.lastSignInAt || 0), tDate),
+                r.lastSignInAt == null
+                  ? "—"
+                  : formatModifiedTime(new Date(r.lastSignInAt), tDate),
             },
           ]}
         />
