@@ -26,6 +26,7 @@
     }
   },
   "navigation": {
+    "audit_log": "Audit log",
     "dashboard": "Dashboard",
     "system": "System",
     "employees": "Employees",
@@ -35,7 +36,83 @@
     "settings": "Settings",
     "no_shop_available": "No shop available"
   },
+  "audit_log": {
+    "title": "Audit log",
+    "description": "See what changed in this shop, who made the change, and when.",
+    "action": "Action",
+    "all_actions": "All actions",
+    "document_filter": "{resource} uploaded",
+    "changed_by": "Changed by",
+    "anyone": "Anyone",
+    "timeline": "Activity timeline",
+    "timezone": "ICT (UTC+7)",
+    "event_count": "{count, plural, one {# event} other {# events}}",
+    "end": "End of activity",
+    "loading": "Loading activity",
+    "empty": "No activity yet",
+    "empty_hint": "Changes to this shop will appear here.",
+    "no_matches": "No matching activity",
+    "no_matches_hint": "Choose a different action or owner.",
+    "error": "Could not load audit activity.",
+    "filters_error": "Could not load audit filters.",
+    "retry": "Retry",
+    "pagination": "Audit log pages",
+    "previous_page": "Previous page",
+    "next_page": "Next page",
+    "actor_fallback": "Owner {id}",
+    "record": "{resource} #{id}",
+    "event": "{resource} {action}",
+    "resources": {
+      "employee": "Employee",
+      "employee_preset": "Employee preset",
+      "employee_payroll_defaults": "Employee payroll defaults",
+      "shop": "Shop",
+      "branch": "Branch",
+      "shop_document": "Shop document",
+      "employee_document": "Employee document",
+      "invitation": "Invitation",
+      "shop_owner": "Shop owner",
+      "payroll_period": "Payroll period",
+      "payroll_entry": "Payroll entry",
+      "compensation_field": "Compensation field",
+      "overtime_field": "Overtime field",
+      "penalty_field": "Penalty field"
+    },
+    "actions": {
+      "create": "created",
+      "update": "updated",
+      "delete": "deleted",
+      "move_in": "moved in",
+      "move_out": "moved out",
+      "replace": "replaced",
+      "rename": "renamed",
+      "grant": "granted access",
+      "revoke": "access revoked",
+      "accept": "accepted",
+      "finalize": "finalized",
+      "unlock": "unlocked",
+      "apply_preset": "preset applied",
+      "request_payslip_delivery": "payslip delivery requested",
+      "mark_paid": "marked as paid",
+      "mark_unpaid": "marked as unpaid",
+      "update_settings": "settings updated",
+      "update_avatar": "photo updated",
+      "change_password": "password changed"
+    },
+    "event_labels": {
+      "payroll_period_finalize": "Payroll finalized",
+      "payroll_period_unlock": "Payroll unlocked",
+      "payroll_period_apply_preset": "Payroll preset applied",
+      "payroll_period_request_payslip_delivery": "Payslip delivery requested",
+      "employee_document_create": "Document uploaded",
+      "shop_document_create": "Document uploaded"
+    }
+  },
   "breadcrumb": {
+    "sign_in": "Sign in",
+    "accept_invitation": "Accept invitation",
+    "no_shop": "No shop",
+    "setup_branch": "Set up your first branch",
     "edit_payroll": "Edit Payrolls",
     "records": "Records",
     "dashboard": "Overview",
@@ -587,20 +664,51 @@
         "btn": "Open"
       }
     },
+    "payslips": {
+      "label": "Payslips",
+      "checking": "Checking payslip status…",
+      "progress": "Preparing payslips · {ready} of {total} ready",
+      "ready": "View or download payslips for this payroll period.",
+      "open": "View payslips",
+      "failed": "{count, plural, one {# payslip failed to generate.} other {# payslips failed to generate.}}",
+      "status_error": "Couldn’t check payslip status.",
+      "retry_error": "Couldn’t restart payslip generation. Try again.",
+      "retry": "Retry",
+      "preview": "Payslip preview",
+      "preview_error": "Couldn’t open this payslip. Return to payroll and try again."
+    },
     "generate": {
-      "label": "Generate payslips",
+      "label": "Payslips",
       "note": "Note",
       "note_content": "You can view, download individual files, or download all payslips at once.",
       "action": {
-        "download_all": "Download",
+        "download_all": "Download all",
+        "download_all_current": "Download all current",
+        "download_selected": "Download selected",
+        "download": "Download payslip",
+        "preview": "View payslip",
+        "preview_pdf": "Preview PDF",
+        "preview_revision": "Preview {name}, revision {version}",
+        "download_revision": "Download {name}, revision {version}",
+        "select_employee": "Select current payslip for {name}",
         "downloading": "Downloading",
         "close": "Close"
       },
+      "history": {
+        "current": "Revision {version} · Current · {date}",
+        "revision": "Revision {version}",
+        "earlier": "{count, plural, one {# earlier version} other {# earlier versions}}",
+        "hide": "Hide earlier versions",
+        "unavailable": "Current payslip unavailable",
+        "loading": "Loading payslip revisions…",
+        "load_error": "Couldn’t load payslip revisions.",
+        "retry": "Try again"
+      },
       "modal": {
         "download": {
-          "label": "Generating payslips...",
+          "label": "Preparing download…",
           "description": "This may take a few moments",
-          "fail": "Failed to generate payslips: {err}"
+          "fail": "Couldn’t download payslips. Try again."
         }
       }
     },
