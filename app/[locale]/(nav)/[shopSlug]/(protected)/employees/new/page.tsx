@@ -15,9 +15,8 @@ export default function Home() {
 
   return (
     <main className="min-h-screen w-full bg-white font-medium">
-      <div className="mx-10">
+      <div className="page-gutter py-10">
         <Breadcrumbs
-          className="mt-10"
           items={[
             { label: name },
             { label: tb("dashboard") },
@@ -31,7 +30,7 @@ export default function Home() {
         </div>
 
         <CreateStepper current={currentPage} />
-        <div className="mx-20">
+        <div className="lg:mx-20">
           <FormSection
             currentPage={currentPage}
             setCurrentPage={setCurrentPage}
