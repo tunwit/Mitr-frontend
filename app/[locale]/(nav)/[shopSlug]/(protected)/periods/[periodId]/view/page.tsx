@@ -17,14 +17,13 @@ import UnlockModal from "@/app/components/Payrolls/view/UnlockModal";
 import SummarySection from "@/app/components/Payrolls/SummarySection";
 import { useTranslations } from "next-intl";
 import { useCurrentShop } from "@/hooks/shop/useCurrentShop";
-import { usePeriod, usePeriodSlips } from "@/hooks/payroll/period/hook.period";
+import { usePayslipProgress, usePeriod, usePeriodSlips } from "@/hooks/payroll/period/hook.period";
 import { EntryBreakDownDTO } from "@/types/type.entry";
 import AdvancedFilters from "@/widget/payroll/AdvancedFilters";
-import PaySlipGenerateModal from "@/app/components/Payrolls/view/PaySlipGenerateModal";
+import PayslipSection from "@/app/components/Payrolls/view/PayslipSection";
 import SendEmailsModal from "@/app/components/Payrolls/view/SendEmailsModal";
 
 export default function ViewPeriodPage() {
-  const [openPayslipGenerate, setOpenPayslipGenerate] = useState(false);
   const [openSendEmails, setOpenSendEmails] = useState(false);
   const [openUnlock, setOpenUnlock] = useState(false);
 
@@ -46,6 +45,10 @@ export default function ViewPeriodPage() {
 
   const { data: periodData, isLoading: loadingPeriod } =
     periodHook.getFilterContext;
+  const period = periodData?.data;
+  const generation = usePayslipProgress(Number(periodId), period?.status === PAY_PERIOD_STATUS.FINALIZED);
+  const payslipActionsDisabled = generation.isGenerating ||
+    generation.progress.isError || generation.progress.data?.data === undefined;
 
   const onExportAsExcel = async () => {
     await slipMutate.excel.mutateAsync();
@@ -78,7 +81,6 @@ export default function ViewPeriodPage() {
     });
   }, [advancedRows, periodData?.data?.breakdowns, debouced]);
 
-  const period = periodData?.data;
   const isLoading = loadingPeriod || !period;
 
   let loadingMessage = tc("load.preparing");
@@ -109,15 +111,7 @@ export default function ViewPeriodPage() {
           setOpen={setOpenEdit}
         />
       )} */}
-      {openPayslipGenerate && periodData?.data && (
-        <PaySlipGenerateModal
-          periodContext={periodData.data}
-          open={openPayslipGenerate}
-          setOpen={setOpenPayslipGenerate}
-        />
-      )}
-
-      {openSendEmails && periodData?.data && (
+      {openSendEmails && !payslipActionsDisabled && (
         <SendEmailsModal
           periodContext={periodData.data}
           open={openSendEmails}
@@ -127,7 +121,7 @@ export default function ViewPeriodPage() {
 
       <UnlockModal
         periodId={Number(periodId) || -1}
-        open={openUnlock}
+        open={openUnlock && !payslipActionsDisabled}
         setOpen={setOpenUnlock}
       />
 
@@ -144,9 +138,8 @@ export default function ViewPeriodPage() {
               transition={{ duration: 0.35, ease: "easeInOut" }}
               className="overflow-hidden relative"
             >
-              <section className="px-10 pb-5 bg-white w-full border-b border-gray-200 sticky top-0">
+              <section className="page-gutter pt-10 pb-5 bg-white w-full border-b border-gray-200 sticky top-0">
                 <Breadcrumbs
-                  className="mt-10"
                   items={[
                     { label: name },
                     { label: tBreadcrumb("dashboard") },
@@ -183,6 +176,7 @@ export default function ViewPeriodPage() {
                       startDecorator={<Icon icon="uil:unlock" fontSize={20} />}
                       color="warning"
                       variant="outlined"
+                      disabled={payslipActionsDisabled}
                       onClick={() => {
                         setOpenUnlock(true);
                       }}
@@ -284,7 +278,7 @@ export default function ViewPeriodPage() {
           )}
         </AnimatePresence>
 
-        <section className="px-10 overflow-y-auto flex-1  space-y-3 ">
+        <section className="page-gutter overflow-y-auto flex-1 space-y-3 pb-10">
           <div hidden={!hideHeader} className={`bg-white py-3 sticky top-0`}>
             <button
               className={`flex w-full items-center justify-center rotate-180  transition-all `}
@@ -315,36 +309,7 @@ export default function ViewPeriodPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer">
-            <div className="flex items-start gap-4">
-              <div className="bg-blue-100 p-3 rounded-lg">
-                <Icon
-                  icon="mage:file-3"
-                  className="text-blue-600"
-                  fontSize={24}
-                />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-gray-900 mb-1">
-                  {tv("actions.generate.label")}
-                </h3>
-                <p className="text-sm text-gray-600 mb-3">
-                  {tv("actions.generate.description")}
-                </p>
-                <button
-                  className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1"
-                  onClick={() => setOpenPayslipGenerate(true)}
-                >
-                  {tv("actions.generate.btn")}
-                  <Icon
-                    icon="lsicon:right-outline"
-                    className="text-blue-600"
-                    fontSize={24}
-                  />
-                </button>
-              </div>
-            </div>
-          </div>
+          <PayslipSection period={period} generation={generation} />
 
           <div className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer">
             <div className="flex items-start gap-4">
@@ -363,8 +328,9 @@ export default function ViewPeriodPage() {
                   {tv("actions.send_mail.description")}
                 </p>
                 <button
+                  disabled={payslipActionsDisabled}
                   onClick={() => setOpenSendEmails(true)}
-                  className="text-sm text-purple-600 hover:text-purple-700 font-medium flex items-center gap-1"
+                  className="flex items-center gap-1 text-sm font-medium text-purple-600 enabled:hover:text-purple-700 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {tv("actions.send_mail.btn")}
                   <Icon
@@ -475,7 +441,7 @@ export default function ViewPeriodPage() {
               />
             </div>
           </section>
-          <div className="space-y-3 mb-5">
+          <div className="space-y-3">
             {filtered.map((b) => {
               return <SummaryCard key={b.entry.id} breakdown={b} />;
             })}
