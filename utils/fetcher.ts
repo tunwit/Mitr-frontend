@@ -8,10 +8,12 @@ interface FetchProps<TBody = any> {
   responseType?: "json" | "blob";
 }
 
+export const publicBackendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+
 const backendUrl =
   typeof window === "undefined"
     ? process.env.INTERNAL_BACKEND_URL // server: use Docker hostname
-    : process.env.NEXT_PUBLIC_BACKEND_URL; // browser: use localhost
+    : publicBackendUrl; // browser: use localhost
 
 export const fetchwithauth = async ({
   endpoint,
