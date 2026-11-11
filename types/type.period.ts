@@ -72,3 +72,16 @@ export type SendPayslipEmailDTO = {
   entryId: number;
   overrideEmail?: string | null | undefined;
 }[];
+
+export type PayslipProgressDTO = {
+  revisionId: number;
+  total: number;
+  ready: number;
+  failed: number;
+};
+
+export type PayslipVersionsDTO = Record<number, {
+  revisionId: number;
+  createdAt: string;
+  status: "pending" | "ready" | "failed";
+}[]>;
