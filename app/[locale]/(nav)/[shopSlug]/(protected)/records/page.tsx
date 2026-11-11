@@ -12,9 +12,8 @@ export default function Home() {
 
   return (
     <main className="min-h-screen w-full bg-white font-medium">
-      <div className="mx-10 flex flex-col min-h-screen ">
+      <div className="page-gutter flex flex-col min-h-screen py-10">
         <Breadcrumbs
-          className="mt-10"
           items={[
             { label: name },
             { label: tb("dashboard") },
