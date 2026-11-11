@@ -5,7 +5,7 @@ import { Suspense } from "react";
 
 const prompt = Prompt({
   subsets: ["thai", "latin"],
-  weight: ["100", "200", "300", "400"],
+  weight: ["100", "200", "300", "400", "500", "600", "700"],
   variable: "--font-prompt",
 });
 
