@@ -6,12 +6,16 @@ interface PaginationProps {
   totalPages: number;
   onPageChange: (p: number) => void;
   disabled?: boolean;
+  previousLabel?: string;
+  nextLabel?: string;
 }
 export default function Pagination({
   page,
   totalPages,
   onPageChange,
   disabled = false,
+  previousLabel,
+  nextLabel,
 }: PaginationProps) {
   if (totalPages < 1) return null;
 
@@ -63,6 +67,7 @@ export default function Pagination({
         type="button"
         size="sm"
         variant="outlined"
+        aria-label={previousLabel}
         disabled={disabled || page <= 1}
         onClick={() => onPageChange(Math.min(page - 1, totalPages))}
       >
@@ -88,6 +93,7 @@ export default function Pagination({
         type="button"
         size="sm"
         variant="outlined"
+        aria-label={nextLabel}
         disabled={disabled || page >= totalPages}
         onClick={() => onPageChange(page + 1)}
       >
