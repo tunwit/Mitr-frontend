@@ -26,6 +26,7 @@
     }
   },
   "navigation": {
+    "audit_log": "บันทึกกิจกรรม",
     "dashboard": "ภาพรวม",
     "system": "ระบบ",
     "employees": "พนักงาน",
@@ -35,7 +36,85 @@
     "settings": "ตั้งค่า",
     "no_shop_available": "ไม่พบร้านค้า"
   },
+  "audit_log": {
+    "title": "บันทึกกิจกรรม",
+    "description": "ตรวจสอบการเปลี่ยนแปลงรายการ ผู้กระทำ และเวลา",
+    "action": "การดำเนินการ",
+    "all_actions": "ทุกการดำเนินการ",
+    "document_filter": "อัปโหลด{resource}",
+    "changed_by": "ผู้ดำเนินการ",
+    "anyone": "ทุกคน",
+    "timeline": "ลำดับกิจกรรม",
+    "timezone": "เวลาไทย (UTC+7)",
+    "event_count": "{count} รายการ",
+    "end": "สิ้นสุดรายการกิจกรรม",
+    "loading": "กำลังโหลดกิจกรรม",
+    "empty": "ยังไม่มีกิจกรรม",
+    "empty_hint": "การเปลี่ยนแปลงของร้านค้าจะแสดงที่นี่",
+    "no_matches": "ไม่พบกิจกรรมที่ตรงกัน",
+    "no_matches_hint": "ลองเลือกการดำเนินการหรือผู้ดำเนินการอื่น",
+    "error": "ไม่สามารถโหลดบันทึกกิจกรรมได้",
+    "filters_error": "ไม่สามารถโหลดตัวกรองได้",
+    "retry": "ลองอีกครั้ง",
+    "pagination": "หน้าบันทึกกิจกรรม",
+    "previous_page": "หน้าก่อนหน้า",
+    "next_page": "หน้าถัดไป",
+    "actor_fallback": "เจ้าของร้าน {id}",
+    "record": "{resource} #{id}",
+    "event": "{action}{resource}",
+    "resources": {
+      "employee": "พนักงาน",
+      "employee_preset": "ชุดพนักงาน",
+      "employee_payroll_defaults": "ค่าเริ่มต้นเงินเดือนพนักงาน",
+      "shop": "ร้านค้า",
+      "branch": "สาขา",
+      "shop_document": "เอกสารร้านค้า",
+      "employee_document": "เอกสารพนักงาน",
+      "invitation": "คำเชิญ",
+      "shop_owner": "เจ้าของร้าน",
+      "payroll_period": "รอบเงินเดือน",
+      "payroll_entry": "รายการเงินเดือน",
+      "compensation_field": "ช่องค่าตอบแทน",
+      "overtime_field": "ช่องค่าล่วงเวลา",
+      "penalty_field": "ช่องค่าปรับ"
+    },
+    "actions": {
+      "create": "สร้าง",
+      "update": "แก้ไข",
+      "delete": "ลบ",
+      "move_in": "ย้ายเข้าร้าน ",
+      "move_out": "ย้ายออกร้าน ",
+      "replace": "แทนที่",
+      "rename": "เปลี่ยนชื่อ",
+      "grant": "ให้สิทธิ์",
+      "revoke": "ยกเลิกสิทธิ์",
+      "accept": "ตอบรับ",
+      "finalize": "ปิด",
+      "unlock": "ปลดล็อก",
+      "apply_preset": "ใช้ชุดพนักงานกับ",
+      "request_payslip_delivery": "ขอส่งสลิปของ",
+      "mark_paid": "ทำเครื่องหมายว่าจ่ายแล้วสำหรับ",
+      "mark_unpaid": "ทำเครื่องหมายว่ายังไม่จ่ายสำหรับ",
+      "update_settings": "แก้ไขการตั้งค่า",
+      "update_avatar": "เปลี่ยนรูปโปรไฟล์",
+      "change_password": "เปลี่ยนรหัสผ่าน"
+    },
+    "event_labels": {
+      "payroll_period_finalize": "ปิดรอบเงินเดือน",
+      "payroll_period_unlock": "ปลดล็อกรอบเงินเดือน",
+      "payroll_period_apply_preset": "ใช้ชุดพนักงานกับรอบเงินเดือน",
+      "payroll_period_request_payslip_delivery": "ขอส่งสลิปเงินเดือน",
+      "employee_document_create": "อัปโหลดเอกสาร",
+      "shop_document_create": "อัปโหลดเอกสาร",
+      "employee_move_in": "ย้ายพนักงานเข้าร้าน",
+      "employee_move_out": "ย้ายพนักงานออกร้าน"
+    }
+  },
   "breadcrumb": {
+    "sign_in": "เข้าสู่ระบบ",
+    "accept_invitation": "ตอบรับคำเชิญ",
+    "no_shop": "ไม่มีร้านค้า",
+    "setup_branch": "ตั้งค่าสาขาแรก",
     "edit_payroll": "แก้ไขเงินเดือน",
     "records": "ประวัติ",
     "dashboard": "ภาพรวม",
@@ -587,20 +666,51 @@
         "btn": "เปิด"
       }
     },
+    "payslips": {
+      "label": "สลิปเงินเดือน",
+      "checking": "กำลังตรวจสอบสถานะสลิปเงินเดือน…",
+      "progress": "กำลังจัดเตรียมสลิปเงินเดือน · พร้อมแล้ว {ready} จาก {total} รายการ",
+      "ready": "ดูหรือดาวน์โหลดสลิปเงินเดือนสำหรับรอบนี้",
+      "open": "ดูสลิปเงินเดือน",
+      "failed": "สร้างสลิปเงินเดือนไม่สำเร็จ {count} รายการ",
+      "status_error": "ตรวจสอบสถานะสลิปเงินเดือนไม่สำเร็จ",
+      "retry_error": "เริ่มสร้างสลิปเงินเดือนใหม่ไม่สำเร็จ กรุณาลองอีกครั้ง",
+      "retry": "ลองอีกครั้ง",
+      "preview": "ตัวอย่างสลิปเงินเดือน",
+      "preview_error": "เปิดสลิปเงินเดือนไม่สำเร็จ กรุณากลับไปที่รอบเงินเดือนแล้วลองอีกครั้ง"
+    },
     "generate": {
-      "label": "สร้างสลิปเงินเดือน",
+      "label": "สลิปเงินเดือน",
       "note": "โน้ต",
       "note_content": "คุณสามารถ ดู ดาวโหลดรายคน หรือดาวโหลดทั้งหมดได้",
       "action": {
-        "download_all": "บันทึก",
-        "downloading": "กกำลังบันทึก",
+        "download_all": "ดาวน์โหลดทั้งหมด",
+        "download_all_current": "ดาวน์โหลดฉบับปัจจุบันทั้งหมด",
+        "download_selected": "ดาวน์โหลดรายการที่เลือก",
+        "download": "ดาวน์โหลดสลิปเงินเดือน",
+        "preview": "ดูสลิปเงินเดือน",
+        "preview_pdf": "ดู PDF",
+        "preview_revision": "ดูสลิปของ {name} ฉบับที่ {version}",
+        "download_revision": "ดาวน์โหลดสลิปของ {name} ฉบับที่ {version}",
+        "select_employee": "เลือกสลิปฉบับปัจจุบันของ {name}",
+        "downloading": "กำลังดาวน์โหลด",
         "close": "ปิด"
+      },
+      "history": {
+        "current": "ฉบับที่ {version} · ปัจจุบัน · {date}",
+        "revision": "ฉบับที่ {version}",
+        "earlier": "{count} ฉบับก่อนหน้า",
+        "hide": "ซ่อนฉบับก่อนหน้า",
+        "unavailable": "ยังไม่สามารถดูสลิปฉบับปัจจุบันได้",
+        "loading": "กำลังโหลดฉบับสลิปเงินเดือน…",
+        "load_error": "โหลดฉบับสลิปเงินเดือนไม่สำเร็จ",
+        "retry": "ลองอีกครั้ง"
       },
       "modal": {
         "download": {
-          "label": "กำลังสร้างสลิปเงินเดือน...",
+          "label": "กำลังเตรียมไฟล์ดาวน์โหลด…",
           "description": "อาจใช้เวลาสักครู่",
-          "fail": "บันทึกสลิปไม่สำเร็จ {err}"
+          "fail": "ดาวน์โหลดสลิปเงินเดือนไม่สำเร็จ กรุณาลองอีกครั้ง"
         }
       }
     },
