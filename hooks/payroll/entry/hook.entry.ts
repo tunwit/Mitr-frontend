@@ -200,15 +200,27 @@ export function useEntrySlip(periodId: number) {
   return { get };
 }
 
-export const usePreviewSlip = (periodId: number, entryId: number) => {
+export const usePreviewSlip = (periodId: number, entryId: number, revisionId?: string) => {
   const { id: shopId } = useCurrentShop();
-  return useQuery<ApiResponse<string>>({
-    queryKey: ["preview", shopId, periodId, entryId],
-    queryFn: () =>
-      fetchwithauth({
-        endpoint: `/shops/${shopId}/periods/${periodId}/entries/${entryId}/preview`,
+  return useQuery<{ html?: string; pdf?: Blob }>({
+    queryKey: ["preview", shopId, periodId, entryId, revisionId],
+    enabled: !!shopId && !!periodId && !!entryId,
+    queryFn: async () => {
+      const endpoint = `/shops/${shopId}/periods/${periodId}`;
+      if (revisionId !== undefined) {
+        const res: Response = await fetchwithauth({
+          endpoint: `${endpoint}/pay-slips/entries/${entryId}/pdf?revisionId=${encodeURIComponent(revisionId)}`,
+          method: "GET",
+          responseType: "blob",
+        });
+        return { pdf: await res.blob() };
+      }
+      const res: ApiResponse<string> = await fetchwithauth({
+        endpoint: `${endpoint}/entries/${entryId}/preview`,
         method: "GET",
-      }),
+      });
+      return { html: res.data };
+    },
     staleTime: 1000 * 60 * 5,
   });
 };
