@@ -69,7 +69,7 @@ export default function PaymentPage() {
   return (
     <main className="h-full min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain bg-slate-50 text-slate-900 selection:bg-blue-100">
       <title>{`${tp("label")} - Mitr`}</title>
-      <div className="mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-7 lg:px-10 lg:py-8">
+      <div className="page-gutter w-full py-10">
         <Breadcrumbs
           items={[
             { label: name },
@@ -282,7 +282,7 @@ export default function PaymentPage() {
               role="tabpanel"
               aria-labelledby="payment-tab-manual"
               hidden={selectedTab !== "manual"}
-              className="mt-5 space-y-3 pb-10"
+              className="mt-5 space-y-3"
             >
               {filtered.map((row) => (
                 <PaymentCard
