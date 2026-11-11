@@ -1,4 +1,5 @@
 "use client";
+import Breadcrumbs from "@/widget/Breadcrumbs";
 import LanguageSelector from "@/widget/LangaugeSelector";
 import { useSignIn } from "@clerk/nextjs";
 import { useTranslations } from "next-intl";
@@ -7,6 +8,7 @@ import Image from "next/image";
 export default function SignInPage() {
   const { signIn } = useSignIn();
   const t = useTranslations("sign-in");
+  const tb = useTranslations("breadcrumb");
   const handleGoogleSignIn = () => {
     if (!signIn) return;
     return signIn
@@ -22,11 +24,12 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br w-full from-gray-50 to-gray-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-linear-to-br w-full from-gray-50 to-gray-100 flex flex-col items-center gap-5 page-gutter py-10">
+      <Breadcrumbs className="w-full" items={[{ label: tb("sign_in") }]} />
       <div className="absolute top-5 right-5">
         <LanguageSelector theme="white"/>
       </div>
-      <div className="w-full max-w-md">
+      <div className="my-auto w-full max-w-md">
         {/* Logo and Title */}
         <div className="text-center mb-8">
           <div className="flex w-full items-center justify-center x">
