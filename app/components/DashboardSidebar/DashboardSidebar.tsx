@@ -1,11 +1,13 @@
 "use client";
 import DashboardButton from "./DashboardButton";
+import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import useHamburger from "@/hooks/useHamburger";
 import UsersIcon from "@/assets/icons/UsersIcon";
 import MoneyIcon from "@/assets/icons/MoneyIcon";
 import DocumentIcon from "@/assets/icons/DocumentIcon";
 import SettingIcon from "@/assets/icons/SettingIcon";
+import HistoryIcon from "@/assets/icons/HistoryIcon";
 import { useTranslations } from "next-intl";
 import { useOwnShop } from "@/hooks/hook.shop";
 import { ShopPublicDTO } from "@/types/type.shop";
@@ -65,12 +67,6 @@ const DashboardRails = [
       },
     ],
   },
-  // {
-  //   titleKey: "Records",
-  //   icon: HistoryIcon,
-  //   id: "records",
-  //   href: "/records",
-  // },
 ];
 
 const ConfigureRails = [
@@ -86,6 +82,12 @@ const ConfigureRails = [
     id: "settings",
     href: "/settings",
   },
+  {
+    titleKey: "audit_log",
+    icon: HistoryIcon,
+    id: "audit-logs",
+    href: "/audit-logs",
+  },
 ];
 
 export default function DashboardSidebar() {
@@ -93,7 +95,17 @@ export default function DashboardSidebar() {
   const shopSlug = pathname[2];
   const page = pathname[3];
   const isPresetPage = page === "presets";
+  const isAuditLogPage = page === "audit-logs";
   const sidebarState = useHamburger((state) => state.open);
+  const sidebarWidth = sidebarState ? (isAuditLogPage ? "224px" : "100%") : "0%";
+  const auditLogSidebarClass = isAuditLogPage
+    ? "shrink-0 max-sm:fixed max-sm:top-20 max-sm:bottom-0 max-sm:z-20"
+    : "";
+  useEffect(() => {
+    if (!isAuditLogPage || !window.matchMedia("(width < 640px)").matches) return;
+    const sidebar = useHamburger.getState();
+    if (sidebar.open) sidebar.toggle();
+  }, [isAuditLogPage]);
   const { data, isLoading } = useOwnShop();
   const t = useTranslations("navigation");
   const currentShop = useCurrentShop();
@@ -104,16 +116,16 @@ export default function DashboardSidebar() {
   if (isLoading) {
     return (
       <div
-        style={{ width: sidebarState ? "100%" : "0%" }}
-        className="transition-all duration-300 flex flex-col bg-[#1f1f1f] max-h-[calc(100vh-80px)] max-w-60 w-56 sticky top-0 left-0 shadow-2xl overflow-clip"
+        style={{ width: sidebarWidth }}
+        className={`transition-all duration-300 flex flex-col bg-[#1f1f1f] max-h-[calc(100vh-80px)] max-w-60 w-56 sticky top-0 left-0 shadow-2xl overflow-clip ${auditLogSidebarClass}`}
       />
     );
   }
   if (!fullCurrentShopObject) {
     return (
       <div
-        style={{ width: sidebarState ? "100%" : "0%" }}
-        className="transition-all duration-300 flex flex-col bg-[#1f1f1f] text-black max-h-[calc(100vh-80px)]  max-w-60 w-56 sticky top-0 left-0 shadow-2xl overflow-clip"
+        style={{ width: sidebarWidth }}
+        className={`transition-all duration-300 flex flex-col bg-[#1f1f1f] text-black max-h-[calc(100vh-80px)] max-w-60 w-56 sticky top-0 left-0 shadow-2xl overflow-clip ${auditLogSidebarClass}`}
       >
         <div className="px-3 flex flex-col text-sm gap-1">
           <p className="text-white text-center mt-5">
@@ -126,8 +138,9 @@ export default function DashboardSidebar() {
   return (
     <>
       <div
-        style={{ width: sidebarState ? "100%" : "0%" }}
-        className="transition-all duration-300 flex flex-col bg-[#1f1f1f] text-black max-h-[calc(100vh-80px)]  max-w-60 w-56 sticky top-0 left-0 shadow-2xl overflow-clip"
+        style={{ width: sidebarWidth }}
+        inert={isAuditLogPage && !sidebarState}
+        className={`transition-all duration-300 flex flex-col bg-[#1f1f1f] text-black max-h-[calc(100vh-80px)] max-w-60 w-56 sticky top-0 left-0 shadow-2xl overflow-clip ${auditLogSidebarClass}`}
       >
         <div className="px-3 flex flex-col text-sm gap-1">
           {/* {Array.isArray(data?.data) &&
