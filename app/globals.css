@@ -4,6 +4,11 @@
 @tailwind utilities;
 
 @custom-variant dark (&:is(.dark *));
+
+.page-gutter {
+  @apply px-4 sm:px-10;
+}
+
 button {
   cursor: pointer;
 }
