@@ -4,7 +4,7 @@ import { NativeInput, SearchInput } from "@/widget/Input";
 import Button from "@mui/joy/Button";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { Add } from "@mui/icons-material";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import dayjs from "dayjs";
 import PayrollsAddEmployeeModal from "@/app/components/Payrolls/new/AddModal/PayrollsAddEmployeeModal";
 import { useParams, usePathname, useRouter } from "next/navigation";
@@ -71,6 +71,7 @@ export default function EditPeriodPage() {
   const [periodTitle, setPeriodTitle] = useState(periodData?.data?.name);
   const [titleDebounced] = useDebounce(periodTitle, 1000);
   const [debouncedDateRange] = useDebounce(dateRange, 500);
+  const hasEditedPeriod = useRef(false);
 
   const [advancedRows, setAdvancedRows] = useState<EntryWithTotalDTO[] | null>(null);
   const tPeriod = useTranslations("period");
@@ -107,7 +108,6 @@ export default function EditPeriodPage() {
       start_period: dayjs(debouncedDateRange.from).format("YYYY-MM-DD"),
       end_period: dayjs(debouncedDateRange.to).format("YYYY-MM-DD"),
     };
-
     try {
       await periodUpdateAsync({ payload: result });
     } catch (err: any) {
@@ -123,7 +123,7 @@ export default function EditPeriodPage() {
   }, [periodId, pathname, router]);
 
   useEffect(() => {
-    if (!periodData?.data) return; //prevent firing too early
+    if (!hasEditedPeriod.current || !periodData?.data) return;
     if (!titleDebounced || !debouncedDateRange) return;
 
     saveDataHandler();
@@ -211,9 +211,8 @@ export default function EditPeriodPage() {
       <title>{periodData?.data?.name}</title>
 
       <div className="flex flex-col h-full">
-        <section className="px-10 pb-5 bg-white w-full border-b border-gray-200 sticky top-0">
+        <section className="page-gutter pt-10 pb-5 bg-white w-full border-b border-gray-200 sticky top-0">
           <Breadcrumbs
-            className="mt-10"
             items={[
               { label: name },
               { label: tBreadcrumb("dashboard") },
@@ -221,10 +220,13 @@ export default function EditPeriodPage() {
               { label: tBreadcrumb("edit_payroll") },
             ]}
           />
-          <div className="mt-3 flex flex-row justify-between">
+          <div className="mt-5 flex flex-row justify-between">
             <NativeInput
               value={periodTitle ?? ""}
-              onChange={(e) => setPeriodTitle(e.target.value)}
+              onChange={(e) => {
+                hasEditedPeriod.current = true;
+                setPeriodTitle(e.target.value);
+              }}
               className="text-black rounded-md text-3xl font-bold p-2"
             ></NativeInput>
 
@@ -351,6 +353,7 @@ export default function EditPeriodPage() {
                       defaultMonth={dateRange?.from}
                       selected={dateRange}
                       onSelect={(range) => {
+                        hasEditedPeriod.current = true;
                         setDateRange(range);
                       }}
                       numberOfMonths={2}
@@ -363,7 +366,7 @@ export default function EditPeriodPage() {
           </section>
         </section>
 
-        <section className="px-10 overflow-y-auto flex-1">
+        <section className="page-gutter overflow-y-auto flex-1">
           <div className="mt-8 flex flex-col justify-between p-4 bg-white  rounded-md shadow">
             <div className="flex flex-row justify-between ">
               <div className="flex flex-row gap-3">
