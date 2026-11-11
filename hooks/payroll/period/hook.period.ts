@@ -4,6 +4,8 @@ import { ApiResponse } from "@/types/response";
 import { CreateBatch } from "@/types/type.batch";
 import {
   NewPeriodDTO,
+  PayslipProgressDTO,
+  PayslipVersionsDTO,
   PeriodContextWithPaymentDTO,
   PeriodFilterContextDTO,
   PeriodPublicDTO,
@@ -237,18 +239,84 @@ export function usePeriod(periodId?: number | string) {
   };
 }
 
+export function usePayslipProgress(periodId: number, enabled: boolean) {
+  const { id: shopId } = useCurrentShop();
+  const queryClient = useQueryClient();
+  const queryKey = ["period", shopId, periodId, "payslips"];
+  const endpoint = `/shops/${shopId}/periods/${periodId}/pay-slips`;
+
+  const progress = useQuery<ApiResponse<PayslipProgressDTO | null>>({
+    queryKey,
+    enabled: enabled && !!shopId,
+    queryFn: () => fetchwithauth({ endpoint: `${endpoint}/progress`, method: "GET" }),
+    refetchInterval: ({ state }) => {
+      const status = state.data?.data;
+      return status && status.ready + status.failed < status.total ? 3000 : false;
+    },
+  });
+  const retry = useMutation({
+    mutationFn: (revisionId: number) => fetchwithauth({
+      endpoint: `${endpoint}/retry`,
+      method: "POST",
+      body: { revisionId },
+    }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey }),
+  });
+
+  const status = progress.data?.data;
+  const isGenerating = retry.isPending || (!!status && status.ready + status.failed < status.total);
+  return { progress, retry, isGenerating };
+}
+
+export function usePayslipVersions(periodId: number, revisionId?: number) {
+  const { id: shopId } = useCurrentShop();
+  return useQuery<ApiResponse<PayslipVersionsDTO>>({
+    queryKey: ["period", shopId, periodId, "payslips", "versions", revisionId],
+    enabled: !!shopId && revisionId !== undefined,
+    queryFn: () => fetchwithauth({
+      endpoint: `/shops/${shopId}/periods/${periodId}/pay-slips/versions?revisionId=${revisionId}`,
+      method: "GET",
+    }),
+  });
+}
+
 export function usePeriodSlips(periodId: number) {
   const { id: shopId } = useCurrentShop();
-  const queryKey = ["periods", "pay-slip", periodId];
-  const queryClient = useQueryClient();
+  const endpoint = `/shops/${shopId}/periods/${periodId}/pay-slips`;
+
+  const saveDownload = ({ blob, filename }: { blob: Blob; filename: string }) => {
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const pdf = useMutation({
+    mutationFn: async ({ entryId, revisionId }: { entryId: number; revisionId: number }) => {
+      const res: Response = await fetchwithauth({
+        endpoint: `${endpoint}/entries/${entryId}/pdf?revisionId=${revisionId}&download=1`,
+        method: "GET",
+        responseType: "blob",
+      });
+      const disposition = res.headers.get("Content-Disposition");
+      const filename = disposition?.match(/filename="?(.+?)"?$/)?.[1] ?? "payslip.pdf";
+      return { blob: await res.blob(), filename };
+    },
+    onSuccess: saveDownload,
+  });
+
   const zip = useMutation<
     { blob: Blob; filename: string },
     Error,
-    { payload: { entryIds: number[] } }
+    { payload: { entryIds: number[]; revisionId?: number } }
   >({
     mutationFn: async ({ payload }) => {
       const res = (await fetchwithauth({
-        endpoint: `/shops/${shopId}/periods/${periodId}/pay-slips/export/zip`,
+        endpoint: `${endpoint}/export/zip`,
         method: "POST",
         body: payload,
         responseType: "blob",
@@ -260,23 +328,13 @@ export function usePeriodSlips(periodId: number) {
 
       return { blob, filename };
     },
-    onSuccess: ({ blob, filename }) => {
-      const url = window.URL.createObjectURL(blob);
-
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
-    },
+    onSuccess: saveDownload,
   });
 
   const excel = useMutation({
     mutationFn: async () => {
       const res = (await fetchwithauth({
-        endpoint: `/shops/${shopId}/periods/${periodId}/pay-slips/export/excel`,
+        endpoint: `${endpoint}/export/excel`,
         method: "POST",
         responseType: "blob",
       })) as Response;
@@ -287,18 +345,7 @@ export function usePeriodSlips(periodId: number) {
 
       return { blob, filename };
     },
-    onSuccess: ({ blob, filename }) => {
-      const url = window.URL.createObjectURL(blob);
-
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-
-      window.URL.revokeObjectURL(url);
-    },
+    onSuccess: saveDownload,
   });
 
   const sendEmail = useMutation<
@@ -314,5 +361,5 @@ export function usePeriodSlips(periodId: number) {
       });
     },
   });
-  return { zip, excel, sendEmail };
+  return { pdf, zip, excel, sendEmail };
 }
