@@ -38,7 +38,7 @@ export default function EmployeePresetDetail({
   return (
     <main className="h-full min-h-0 min-w-0 w-full overflow-y-auto bg-white font-medium">
       <title>{title} - Mitr</title>
-      <section className="px-4 sm:px-10 pt-10 pb-5">
+      <section className="page-gutter pt-10 pb-5">
         <Breadcrumbs
           items={[
             { label: name },
@@ -50,7 +50,7 @@ export default function EmployeePresetDetail({
         />
         <h1 className="mt-5 text-black text-4xl font-bold">{title}</h1>
       </section>
-      <section className="mx-4 sm:mx-10 pb-10">
+      <section className="page-gutter pb-10">
         {!isNew && !invalidId && preset.isPending && (
           <p role="status">{t("loading")}</p>
         )}
