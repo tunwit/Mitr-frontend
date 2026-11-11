@@ -51,7 +51,7 @@ export default function EmployeePresetsPage() {
   return (
     <main className="min-h-screen w-full bg-white font-medium">
       <title>{t("presets")} - Mitr</title>
-      <section className="px-4 sm:px-10 pt-10 pb-5">
+      <section className="page-gutter pt-10 pb-5">
         <Breadcrumbs
           items={[
             { label: name },
@@ -72,7 +72,7 @@ export default function EmployeePresetsPage() {
           </Button>
         </div>
       </section>
-      <section className="mx-4 sm:mx-10 pb-10">
+      <section className="page-gutter pb-10">
         <div className="mb-5 w-full sm:w-[60%]">
           <label
             htmlFor="preset-search"
