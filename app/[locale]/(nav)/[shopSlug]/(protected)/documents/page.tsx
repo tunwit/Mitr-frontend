@@ -86,8 +86,8 @@ export default function Document() {
           </div>
         </ModalDialog>
       </Modal>
-      <main className="w-full h-full  font-medium overflow-auto py-10">
-        <div className="mx-10">
+      <main className="w-full h-full font-medium overflow-auto">
+        <div className="page-gutter py-10">
           <Breadcrumbs
             items={[
               { label: name },
