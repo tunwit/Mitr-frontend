@@ -1,4 +1,6 @@
 "use client";
+import Breadcrumbs from "@/widget/Breadcrumbs";
+import { useTranslations } from "next-intl";
 
 import { useOwnShop } from "@/hooks/hook.shop";
 import { Link } from "@/i18n/navigation";
@@ -7,6 +9,7 @@ import { redirect } from "next/navigation";
 import { useEffect } from "react";
 
 export default function SetupShopPage() {
+  const tb = useTranslations("breadcrumb");
   const { data, isSuccess } = useOwnShop();
 
   useEffect(() => {
@@ -18,8 +21,9 @@ export default function SetupShopPage() {
   }, [data, isSuccess]);
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gray-50 px-4">
-      <div className="max-w-lg w-full bg-white rounded-lg shadow-lg p-8 ">
+    <div className="page-gutter flex min-h-screen w-full flex-col items-center gap-5 bg-gray-50 py-10">
+      <Breadcrumbs className="w-full" items={[{ label: tb("no_shop") }]} />
+      <div className="my-auto max-w-lg w-full bg-white rounded-lg shadow-lg p-8 ">
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg
