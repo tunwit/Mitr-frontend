@@ -36,9 +36,8 @@ export default function Home() {
       <title>Employee - Mitr</title>
 
       <main className="min-h-screen w-full bg-white font-medium">
-        <div className="mx-10">
+        <div className="page-gutter py-10">
           <Breadcrumbs
-            className="mt-10"
             items={[
               { label: name },
               { label: tb("dashboard") },
