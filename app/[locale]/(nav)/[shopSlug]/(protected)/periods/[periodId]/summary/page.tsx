@@ -114,9 +114,8 @@ export default function Home() {
       />
       <title>{periodData?.data?.name}</title>
       <div className="flex flex-col h-full overflow-y-auto">
-        <section className="px-10 pb-5 bg-white w-full border-b border-gray-200 sticky top-0 z-999">
+        <section className="page-gutter pt-10 pb-5 bg-white w-full border-b border-gray-200 sticky top-0 z-999">
           <Breadcrumbs
-            className="mt-10"
             items={[
               { label: name },
               { label: tBreadcrumb("dashboard") },
@@ -153,7 +152,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="px-10 mt-8">
+        <section className="page-gutter mt-8">
           <div
             hidden={validateData?.data?.length !== 0}
             className={`bg-green-50 p-4 border border-green-200 rounded-md`}
@@ -197,8 +196,8 @@ export default function Home() {
           </div>
         </section>
 
-        <section>
-          <div className="mt-8 mx-10 flex flex-col justify-between p-4   bg-white  rounded-md shadow">
+        <section className="page-gutter mt-8">
+          <div className="flex flex-col justify-between p-4   bg-white  rounded-md shadow">
             <div className="flex flex-row justify-between h-10">
               <div className="flex flex-row gap-3 h-full">
                 <div className="w-96 ">
@@ -233,12 +232,12 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="flex flex-col px-10  mt-5 gap-4">
+        <section className="page-gutter flex flex-col mt-5 gap-4">
           {filtered.map((b) => {
             return <SummaryCard key={b.entry.id} breakdown={b} />;
           })}
         </section>
-        <section className="px-10 mb-5">
+        <section className="page-gutter pb-10">
           <SummarySection breakdowns={filtered} />
         </section>
       </div>
