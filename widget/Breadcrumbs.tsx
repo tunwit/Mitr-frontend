@@ -8,9 +8,10 @@ import { cn } from "@/lib/utils";
 interface BreadcrumbsProps {
   items: readonly { label: ReactNode; href?: string }[];
   className?: string;
+  separator?: ReactNode;
 }
 
-export default function Breadcrumbs({ items, className }: BreadcrumbsProps) {
+export default function Breadcrumbs({ items, className, separator = ">" }: BreadcrumbsProps) {
   const t = useTranslations("common");
 
   return (
@@ -23,7 +24,7 @@ export default function Breadcrumbs({ items, className }: BreadcrumbsProps) {
           const current = index === items.length - 1;
           return (
             <Fragment key={index}>
-              {index > 0 && <li aria-hidden="true">{">"}</li>}
+            {index > 0 && <li aria-hidden="true">{separator}</li>}
               <li
                 className={current ? "text-blue-800" : undefined}
                 aria-current={current ? "page" : undefined}
