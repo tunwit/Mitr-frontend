@@ -27,9 +27,8 @@ function SettingsPage() {
   return (
     <main className="h-full min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain bg-white font-medium">
       <title>Setting - Mitr</title>
-      <div className="mx-auto flex w-full max-w-[1440px] flex-col px-5 pb-16 sm:px-8 lg:px-10">
+      <div className="page-gutter flex w-full flex-col py-10">
         <Breadcrumbs
-          className="mt-10"
           items={[
             { label: name },
             { label: tBreadcrumb("configure") },
