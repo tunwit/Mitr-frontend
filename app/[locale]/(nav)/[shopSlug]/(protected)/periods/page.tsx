@@ -62,7 +62,7 @@ export default function PeriodsPage() {
   };
 
   return (
-    <main className="min-h-screen w-full bg-white font-medium">
+    <main className="h-full min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain bg-white font-medium">
       <title>Payrolls - Eslip</title>
       <Modal open={isLoading}>
         <ModalDialog>
@@ -78,9 +78,8 @@ export default function PeriodsPage() {
         </ModalDialog>
       </Modal>
 
-      <section className="px-10 pb-5 bg-white w-full ">
+      <section className="page-gutter pt-10 pb-5 bg-white w-full">
         <Breadcrumbs
-          className="pt-10"
           items={[
             { label: name },
             { label: tb("dashboard") },
@@ -103,7 +102,7 @@ export default function PeriodsPage() {
         </div>
       </section>
 
-      <div className="mx-10 flex flex-col min-h-screen ">
+      <div className="page-gutter flex flex-col pb-10">
         <section className=" flex flex-row justify-between bg-white">
           <div className="w-[60%]">
             <SearchInput
