@@ -1,7 +1,7 @@
 import React, { Dispatch, SetStateAction, useState } from "react";
 import { Download, Loader2 } from "lucide-react";
 import Image from "next/image";
-import { Checkbox, Modal, ModalDialog } from "@mui/joy";
+import { Checkbox, Drawer, Modal, ModalDialog } from "@mui/joy";
 import { dateFormat, moneyFormat } from "@/utils/formmatter";
 import { showError } from "@/utils/showSnackbar";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
@@ -11,18 +11,21 @@ import { useCheckBox } from "@/hooks/useCheckBox";
 import { usePathname } from "next/navigation";
 import { usePayslipVersions, usePeriodSlips } from "@/hooks/payroll/period/hook.period";
 import { PeriodFilterContextDTO } from "@/types/type.period";
+import type { EntryBreakDownDTO } from "@/types/type.entry";
 import { useCurrentShop } from "@/hooks/shop/useCurrentShop";
 import { publicBackendUrl } from "@/utils/fetcher";
 
 interface PaySlipGenerateModalProps {
   periodContext: PeriodFilterContextDTO;
   revisionId?: number;
+  employeePayslip?: EntryBreakDownDTO;
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
 }
 export default function PaySlipGenerateModal({
   periodContext,
   revisionId,
+  employeePayslip,
   open,
   setOpen,
 }: PaySlipGenerateModalProps) {
@@ -129,7 +132,131 @@ export default function PaySlipGenerateModal({
     }
   };
 
+  const legacyActions = (entryId: number) => (
+    <div className="flex items-center gap-2">
+      <a
+        href={pathname.replace(/\/view\/?$/, `/entry/${entryId}/preview`)}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex min-h-8 items-center rounded-md border border-gray-300 px-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100"
+      >
+        {t("action.preview")}
+      </a>
+      <button
+        type="button"
+        onClick={() => void downloadIndividual(entryId)}
+        disabled={loadingStates[entryId] || downloadingAll}
+        aria-label={t("action.download")}
+        className="inline-flex size-9 items-center justify-center rounded-md border border-gray-300 text-gray-600 hover:bg-gray-100 disabled:opacity-50"
+      >
+        {loadingStates[entryId] ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
+      </button>
+    </div>
+  );
+
+  const closeButton = (
+    <button
+      type="button"
+      onClick={() => setOpen(false)}
+      aria-label={t("action.close")}
+      className="inline-flex size-9 shrink-0 items-center justify-center rounded-md border border-gray-300 bg-white text-gray-600 hover:bg-gray-100"
+    >
+      <Image src="/payslip/close.svg" width={18} height={18} alt="" />
+    </button>
+  );
+  const versionStatus = stored && (versions.isError ? (
+    <div className="flex flex-wrap items-center gap-3 py-4 text-sm">
+      <p role="alert" className="text-red-700">{t("history.load_error")}</p>
+      <button
+        type="button"
+        className="font-medium text-blue-700"
+        onClick={() => void versions.refetch()}
+      >
+        {t("history.retry")}
+      </button>
+    </div>
+  ) : !versionsByEntry ? (
+    <p className="py-4 text-sm text-gray-600" role="status">{t("history.loading")}</p>
+  ) : null);
+
   if (!open) return null;
+
+  if (employeePayslip) {
+    const { entry } = employeePayslip;
+    const { firstName, lastName } = entry.employee.snapshot;
+    const name = `${firstName} ${lastName}`;
+    const history = versionsByEntry?.[entry.id] ?? [];
+
+    return (
+      <Drawer
+        anchor="right"
+        open={open}
+        onClose={() => setOpen(false)}
+        slotProps={{
+          backdrop: { sx: { backdropFilter: "none", backgroundColor: "rgb(30 41 59 / 35%)" } },
+          content: {
+            "aria-labelledby": "payslip-history-title",
+            sx: { width: "min(30.375rem, 100%)" },
+          },
+        }}
+      >
+        <div className="p-4 sm:p-6">
+          <header className="border-b border-slate-200 pb-4">
+            <div className="flex items-center justify-between gap-3">
+              <h2 id="payslip-history-title" className="text-xl font-semibold text-slate-900">
+                {t("history.title")}
+              </h2>
+              {closeButton}
+            </div>
+            <p className="mt-3 text-sm font-medium text-slate-800">{name}</p>
+            <p className="mt-1 text-sm text-slate-600">
+              {periodContext.name} · {formatRevisionDate(periodContext.start_period)} –{" "}
+              {formatRevisionDate(periodContext.end_period)}
+            </p>
+          </header>
+          {versionStatus || (!stored ? (
+            <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-lg bg-emerald-50 p-4">
+              <p className="text-sm font-medium text-emerald-900">{t("history.current_badge")}</p>
+              {legacyActions(entry.id)}
+            </div>
+          ) : (
+            <>
+              <p className="my-4 text-sm text-slate-600">{t("history.description")}</p>
+              {history.length === 0 && (
+                <p className="text-sm text-slate-600">{t("history.unavailable")}</p>
+              )}
+              <ul className="space-y-4">
+                {history.map((version, index) => {
+                  const current = index === 0;
+                  if (!current && version.status !== "ready") return null;
+                  return (
+                    <li
+                      key={version.revisionId}
+                      className={`rounded-lg border p-4 ${current ? "border-transparent bg-emerald-50" : "border-slate-200"}`}
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="font-semibold text-slate-900">{formatRevisionDate(version.createdAt, true)}</p>
+                        <span className={`rounded px-2 py-1 text-xs font-medium ${current ? "text-emerald-800" : "bg-slate-100 text-slate-700"}`}>
+                          {t(current ? "history.current_badge" : "history.previous_badge")}
+                        </span>
+                      </div>
+                      <div className="mt-3">
+                        {version.status === "ready" ? (
+                          pdfActions(entry.id, version.revisionId, history.length - index, name)
+                        ) : (
+                          <p className="text-sm text-slate-600">{t("history.unavailable")}</p>
+                        )}
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </>
+          ))}
+        </div>
+      </Drawer>
+    );
+  }
 
   return (
     <Modal open={open} onClose={() => setOpen(false)}>
@@ -152,13 +279,7 @@ export default function PaySlipGenerateModal({
                 </p>
               </div>
             </div>
-            <button
-              onClick={() => setOpen(false)}
-              aria-label={t("action.close")}
-              className="inline-flex size-9 items-center justify-center rounded-md border border-gray-300 bg-white text-gray-600 hover:bg-gray-100"
-            >
-              <Image src="/payslip/close.svg" width={18} height={18} alt="" />
-            </button>
+            {closeButton}
           </div>
 
           {/* Content */}
@@ -175,20 +296,7 @@ export default function PaySlipGenerateModal({
                 </p>
               </label>
             </div>
-            {stored && versions.isError ? (
-              <div className="flex items-center gap-3 py-4 text-sm">
-                <p role="alert" className="text-red-700">{t("history.load_error")}</p>
-                <button
-                  type="button"
-                  className="font-medium text-blue-700"
-                  onClick={() => void versions.refetch()}
-                >
-                  {t("history.retry")}
-                </button>
-              </div>
-            ) : stored && !versionsByEntry ? (
-              <p className="py-4 text-sm text-gray-600" role="status">{t("history.loading")}</p>
-            ) : (
+            {versionStatus || (
               <div className="mt-2 space-y-2.5">
                 {periodContext.breakdowns.map(({ entry, calculation }) => {
                   const { firstName, lastName, branch } = entry.employee.snapshot;
@@ -227,27 +335,7 @@ export default function PaySlipGenerateModal({
                           <p className="text-sm font-semibold text-gray-900">฿{moneyFormat(calculation.netPay)}</p>
                           {current?.status === "ready" ? (
                             pdfActions(entry.id, current.revisionId, entryVersions.length, name)
-                          ) : !stored && (
-                            <div className="flex items-center gap-2">
-                              <a
-                                href={pathname.replace(/\/view\/?$/, `/entry/${entry.id}/preview`)}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex min-h-8 items-center rounded-md border border-gray-300 px-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100"
-                              >
-                                {t("action.preview")}
-                              </a>
-                              <button
-                                type="button"
-                                onClick={() => void downloadIndividual(entry.id)}
-                                disabled={loadingStates[entry.id] || downloadingAll}
-                                aria-label={t("action.download")}
-                                className="inline-flex size-9 items-center justify-center rounded-md border border-gray-300 text-gray-600 hover:bg-gray-100 disabled:opacity-50"
-                              >
-                                {loadingStates[entry.id] ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
-                              </button>
-                            </div>
-                          )}
+                          ) : !stored && legacyActions(entry.id)}
                         </div>
                       </div>
                       {history.length > 0 && (

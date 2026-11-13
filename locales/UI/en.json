@@ -200,6 +200,12 @@
     }
   },
   "employees": {
+    "preferred_payment_method": {
+      "label": "Preferred salary payment method",
+      "cash": "Cash",
+      "bank_transfer": "Bank transfer",
+      "unset": "Not set"
+    },
     "label": "Employees",
     "tabs": {
       "details": "Details",
@@ -695,6 +701,10 @@
         "close": "Close"
       },
       "history": {
+        "title": "Payslip version history",
+        "description": "Earlier copies are kept here when payroll is corrected.",
+        "current_badge": "Current",
+        "previous_badge": "Previous",
         "current": "Revision {version} · Current · {date}",
         "revision": "Revision {version}",
         "earlier": "{count, plural, one {# earlier version} other {# earlier versions}}",

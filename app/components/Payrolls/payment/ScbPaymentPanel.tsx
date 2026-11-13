@@ -26,18 +26,21 @@ export default function ScbPaymentPanel({
   periodId,
   entries,
   visibleIds,
+  exportScopeIds,
   active,
 }: {
   periodId: number;
   entries: EntryBreakDownDTO[];
   visibleIds: number[];
+  exportScopeIds: number[] | null;
   active: boolean;
 }) {
   const t = useTranslations("scb");
+  const paymentMethod = useTranslations("employees.preferred_payment_method");
   const { slug, id: shopId } = useCurrentShop();
   const configs = useShopConfigs();
   const queryClient = useQueryClient();
-  const [selected, setSelected] = useState<number[]>(() =>
+  const [selection, setSelected] = useState<number[]>(() =>
     entries.filter((row) => !row.entry.paidAt).map((row) => row.entry.id),
   );
   const settings = configs.data?.data?.scbPaymentSettings;
@@ -51,10 +54,15 @@ export default function ScbPaymentPanel({
     Pick<ScbRequest, "payrollService" | "smartService" | "feePayer">
   >({ feePayer: "OUR" });
   const [paymentDate, setPaymentDate] = useState("");
-  const [acknowledgePaid, setAcknowledgePaid] = useState(false);
+  const [acknowledgedFingerprint, setAcknowledgedFingerprint] = useState<string>();
   const [editing, setEditing] = useState<number | null>(null);
   const [showIssues, setShowIssues] = useState(false);
   const [downloaded, setDownloaded] = useState(false);
+  const selected = useMemo(() => {
+    if (exportScopeIds === null) return selection;
+    const scope = new Set(exportScopeIds);
+    return selection.filter((id) => scope.has(id));
+  }, [selection, exportScopeIds]);
   const request = useMemo(
     () => ({
       entryIds: [...selected].sort((a, b) => a - b),
@@ -71,11 +79,19 @@ export default function ScbPaymentPanel({
     active && !configs.isLoading && !configs.isError,
   );
   const data = preview.data?.data;
+  const preferredMethodsByEntryId = useMemo(
+    () =>
+      new Map(
+        entries.map((row) => [row.entry.id, row.currentPreferredPaymentMethod]),
+      ),
+    [entries],
+  );
+  const acknowledgePaid = !!data && acknowledgedFingerprint === data.fingerprint;
   const rows =
     data?.recipients.filter((row) => visibleIds.includes(row.entryId)) ?? [];
   const changeSelection = (ids: number[]) => {
     setSelected(ids);
-    setAcknowledgePaid(false);
+    setAcknowledgedFingerprint(undefined);
     setDownloaded(false);
     download.reset();
   };
@@ -134,7 +150,7 @@ export default function ScbPaymentPanel({
               value={paymentDate}
               onChange={(event) => {
                 setPaymentDate(event.target.value);
-                setAcknowledgePaid(false);
+                setAcknowledgedFingerprint(undefined);
                 setDownloaded(false);
                 download.reset();
               }}
@@ -182,7 +198,7 @@ export default function ScbPaymentPanel({
                           if (kind === "funding")
                             setFundingAccountId(event.target.value);
                           else setFeeAccountId(event.target.value);
-                          setAcknowledgePaid(false);
+                          setAcknowledgedFingerprint(undefined);
                           setDownloaded(false);
                           download.reset();
                         }}
@@ -246,7 +262,7 @@ export default function ScbPaymentPanel({
                               ...current,
                               [field]: event.target.value || undefined,
                             }));
-                            setAcknowledgePaid(false);
+                            setAcknowledgedFingerprint(undefined);
                             setDownloaded(false);
                             download.reset();
                           }}
@@ -337,7 +353,9 @@ export default function ScbPaymentPanel({
                 type="checkbox"
                 checked={acknowledgePaid}
                 className="mt-0.5 h-4 w-4 shrink-0 accent-blue-600"
-                onChange={(event) => setAcknowledgePaid(event.target.checked)}
+                onChange={(event) =>
+                  setAcknowledgedFingerprint(event.target.checked ? data.fingerprint : undefined)
+                }
               />
               {t("paidWarning")}
             </label>
@@ -556,6 +574,14 @@ export default function ScbPaymentPanel({
                         {row.name}
                       </p>
                       <p className="mt-1 break-words text-xs text-slate-600">
+                        {paymentMethod("label")} ·{" "}
+                        <span className="font-medium text-slate-900">
+                          {paymentMethod(
+                            preferredMethodsByEntryId.get(row.entryId) ?? "unset",
+                          )}
+                        </span>
+                      </p>
+                      <p className="mt-1 break-words text-xs text-slate-600">
                         {t("accountHolder")}: {row.accountHolder || "—"}
                       </p>
                       {row.paid && (
@@ -655,7 +681,7 @@ export default function ScbPaymentPanel({
             const next = typeof open === "function" ? open(true) : open;
             if (!next) {
               setEditing(null);
-              setAcknowledgePaid(false);
+              setAcknowledgedFingerprint(undefined);
               setDownloaded(false);
               void queryClient.invalidateQueries({
                 queryKey: ["scb-payment", shopId, periodId],

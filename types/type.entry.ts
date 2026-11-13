@@ -1,3 +1,4 @@
+import type { SalaryPaymentMethod } from "./enum/enum.employee";
 import { CompensationValuePublicDTO } from "./payroll/type.compensation";
 import { OTValuePublicDTO } from "./payroll/type.ot";
 import { PenaltyValuePublicDTO } from "./payroll/type.penalty";
@@ -48,6 +49,7 @@ export type EntrySummaryDTO = {
 
 export type EntryBreakDownDTO = {
   entry: EntryPublicDTO;
+  currentPreferredPaymentMethod: SalaryPaymentMethod | null;
   currentSocialSecurityCoverage: boolean | null;
   items: PayrollItemsDTO;
   calculation: CalculationContext;

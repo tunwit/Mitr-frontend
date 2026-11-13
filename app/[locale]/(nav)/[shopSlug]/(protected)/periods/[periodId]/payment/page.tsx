@@ -274,6 +274,7 @@ export default function PaymentPage() {
                 periodId={Number(periodId)}
                 entries={period.breakdowns}
                 visibleIds={filtered.map((row) => row.entry.id)}
+                exportScopeIds={advancedIds}
                 active={selectedTab === "file"}
               />
             </section>

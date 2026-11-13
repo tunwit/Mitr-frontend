@@ -116,6 +116,7 @@ export default function EmployeeDetailsModal({
         dateEmploy: employee.dateEmploy
           ? new Date(employee.dateEmploy)
           : undefined,
+        preferredPaymentMethod: employee.preferredPaymentMethod ?? null,
         haveSocialSecurity: employee.haveSocialSecurity ?? false,
         socialSecurityNumber: employee.socialSecurityNumber ?? "",
         bankName: employee.bankName,

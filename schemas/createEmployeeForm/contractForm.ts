@@ -1,4 +1,5 @@
 import { EMPLOYEE_STATUS } from "@/types/enum/enum";
+import { SALARY_PAYMENT_METHODS } from "@/types/enum/enum.employee";
 import { z } from "zod";
 
 export const contractSchema = z.object({
@@ -7,6 +8,7 @@ export const contractSchema = z.object({
     .gte(0, "Salary must >= 0"),
   position: z.string().min(1, "Position is required"),
   dateEmploy: z.date({ required_error: "Employ date is required" }).optional(),
+  preferredPaymentMethod: z.enum(SALARY_PAYMENT_METHODS).nullable().optional(),
   haveSocialSecurity: z.boolean(),
   socialSecurityNumber: z.string().trim().max(64).optional(),
   bankName: z.string().trim().optional().or(z.literal("")),

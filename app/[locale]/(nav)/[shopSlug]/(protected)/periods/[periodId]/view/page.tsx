@@ -21,11 +21,13 @@ import { usePayslipProgress, usePeriod, usePeriodSlips } from "@/hooks/payroll/p
 import { EntryBreakDownDTO } from "@/types/type.entry";
 import AdvancedFilters from "@/widget/payroll/AdvancedFilters";
 import PayslipSection from "@/app/components/Payrolls/view/PayslipSection";
+import PaySlipGenerateModal from "@/app/components/Payrolls/view/PaySlipGenerateModal";
 import SendEmailsModal from "@/app/components/Payrolls/view/SendEmailsModal";
 
 export default function ViewPeriodPage() {
   const [openSendEmails, setOpenSendEmails] = useState(false);
   const [openUnlock, setOpenUnlock] = useState(false);
+  const [payslipEntryId, setPayslipEntryId] = useState<number | null>(null);
 
   const [hideHeader, setHideHeader] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
@@ -46,9 +48,12 @@ export default function ViewPeriodPage() {
   const { data: periodData, isLoading: loadingPeriod } =
     periodHook.getFilterContext;
   const period = periodData?.data;
-  const generation = usePayslipProgress(Number(periodId), period?.status === PAY_PERIOD_STATUS.FINALIZED);
+  const finalized = period?.status === PAY_PERIOD_STATUS.FINALIZED;
+  const generation = usePayslipProgress(Number(periodId), finalized);
+  const payslipProgress = generation.progress.data?.data;
   const payslipActionsDisabled = generation.isGenerating ||
-    generation.progress.isError || generation.progress.data?.data === undefined;
+    generation.progress.isError || payslipProgress === undefined;
+  const payslipEntry = period?.breakdowns.find(({ entry }) => entry.id === payslipEntryId);
 
   const onExportAsExcel = async () => {
     await slipMutate.excel.mutateAsync();
@@ -102,7 +107,17 @@ export default function ViewPeriodPage() {
       </Modal>
     );
   return (
-    <main className="h-full  w-full bg-gray-100 font-medium ">
+    <main className="@container h-full min-w-0 w-full bg-gray-100 font-medium">
+      {finalized && payslipEntry && payslipProgress !== undefined && (
+        <PaySlipGenerateModal
+          key={payslipEntry.entry.id}
+          periodContext={period}
+          revisionId={payslipProgress?.revisionId}
+          employeePayslip={payslipEntry}
+          open
+          setOpen={() => setPayslipEntryId(null)}
+        />
+      )}
       {/* {openEdit && (
         <PayrollEditEmployeeModal
           periodData={periodData?.data}
@@ -127,7 +142,7 @@ export default function ViewPeriodPage() {
 
       <title>{period.name}</title>
 
-      <div className="flex flex-col h-full bg-white">
+      <div className="flex h-full flex-col overflow-y-auto bg-white @4xl:overflow-hidden">
         <AnimatePresence initial={false}>
           {!hideHeader && (
             <motion.div
@@ -136,9 +151,9 @@ export default function ViewPeriodPage() {
               animate={{ height: "auto", opacity: 1, y: 0 }}
               exit={{ height: 0, opacity: 0, y: -20 }}
               transition={{ duration: 0.35, ease: "easeInOut" }}
-              className="overflow-hidden relative"
+              className="relative shrink-0 overflow-hidden"
             >
-              <section className="page-gutter pt-10 pb-5 bg-white w-full border-b border-gray-200 sticky top-0">
+              <section className="page-gutter w-full border-b border-gray-200 bg-white pt-8 pb-4">
                 <Breadcrumbs
                   items={[
                     { label: name },
@@ -150,19 +165,19 @@ export default function ViewPeriodPage() {
                     },
                   ]}
                 />
-                <div className="mt-5 flex flex-row justify-between items-center   ">
+                <div className="mt-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
                   <div>
-                    <span className="flex flex-row gap-3  items-center  text-black text-4xl font-bold">
+                    <span className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-3xl/10 font-bold text-black [overflow-wrap:anywhere]">
                       <p>{period.name}</p>
-                      <p className="text-lg opacity-50 font-light">
+                      <p className="text-sm/5 font-light opacity-50">
                         ({tv("info.read_only")})
                       </p>
                     </span>
-                    <p className="opacity-50 mt-2">{tv("label")}</p>
+                    <p className="mt-0.5 text-sm/5 opacity-50">{tv("label")}</p>
                   </div>
 
-                  <div className="flex gap-3 h-fit">
-                    <div className="flex items-center gap-2 px-4 rounded-md bg-green-50 text-green-800 border-green-200 border">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex min-h-8 items-center gap-2 rounded-md px-3 text-sm bg-green-50 text-green-800 border-green-200 border">
                       <Icon
                         icon="icon-park-outline:check-one"
                         className="text-green-600"
@@ -186,20 +201,20 @@ export default function ViewPeriodPage() {
                   </div>
                 </div>
 
-                <section className="grid grid-cols-4 gap-4 mt-5">
-                  <div className="bg-blue-50 from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
-                    <div className="flex items-center justify-between">
+                <section className="mt-4 grid gap-3 @xs:grid-cols-2 @4xl:grid-cols-4">
+                  <div className="bg-blue-50 from-blue-50 to-blue-100 rounded-lg px-3.5 py-3.5 border border-blue-200">
+                    <div className="flex min-h-11 items-center justify-between gap-2">
                       <div>
-                        <p className="text-sm text-blue-700 font-medium">
+                        <p className="text-xs/4 text-blue-700 font-medium">
                           {tPeriod("fields.status")}
                         </p>
-                        <p className="text-xl font-bold text-blue-900 mt-1">
+                        <p className="text-lg/6 font-bold text-blue-900 [overflow-wrap:anywhere]">
                           {tPeriod(
                             `status.${PAY_PERIOD_STATUS_LABELS[period.status ?? PAY_PERIOD_STATUS.DRAFT]?.toLowerCase()}`,
                           )}
                         </p>
                       </div>
-                      <div className="bg-blue-200 p-2 rounded-lg">
+                      <div className="bg-blue-200 flex size-8 shrink-0 items-center justify-center rounded-lg">
                         <Icon
                           icon={"mdi:clock-outline"}
                           className="text-blue-700"
@@ -209,33 +224,33 @@ export default function ViewPeriodPage() {
                     </div>
                   </div>
 
-                  <div className="bg-purple-50 from-purple-50 to-purple-100 rounded-lg p-4 border border-purple-200">
-                    <div className="flex items-center justify-between">
+                  <div className="bg-purple-50 from-purple-50 to-purple-100 rounded-lg px-3.5 py-3.5 border border-purple-200">
+                    <div className="flex min-h-11 items-center justify-between gap-2">
                       <div>
-                        <p className="text-sm text-purple-700 font-medium">
+                        <p className="text-xs/4 text-purple-700 font-medium">
                           {tPeriod("fields.employees")}
                         </p>
-                        <p className="text-xl font-bold text-purple-900 mt-1">
+                        <p className="text-lg/6 font-bold text-purple-900 [overflow-wrap:anywhere]">
                           {period.employeeCount}
                         </p>
                       </div>
-                      <div className="bg-purple-200 p-2 rounded-lg">
+                      <div className="bg-purple-200 flex size-8 shrink-0 items-center justify-center rounded-lg">
                         <UsersIcon className="text-purple-700 text-xl" />
                       </div>
                     </div>
                   </div>
 
-                  <div className="bg-green-50 from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
-                    <div className="flex items-center justify-between">
+                  <div className="bg-green-50 from-green-50 to-green-100 rounded-lg px-3.5 py-3.5 border border-green-200">
+                    <div className="flex min-h-11 items-center justify-between gap-2">
                       <div>
-                        <p className="text-sm text-green-700 font-medium">
+                        <p className="text-xs/4 text-green-700 font-medium">
                           {tPeriod("fields.grand_total")}
                         </p>
-                        <p className="text-xl font-bold text-green-900 mt-1">
+                        <p className="text-lg/6 font-bold text-green-900 [overflow-wrap:anywhere]">
                           {moneyFormat(period.netPay || 0)}
                         </p>
                       </div>
-                      <div className="bg-green-200 p-2 rounded-lg">
+                      <div className="bg-green-200 flex size-8 shrink-0 items-center justify-center rounded-lg">
                         <Icon
                           icon="tabler:currency-baht"
                           className="text-green-700 text-xl"
@@ -245,19 +260,18 @@ export default function ViewPeriodPage() {
                     </div>
                   </div>
 
-                  <div className="bg-orange-50 from-orange-50 to-orange-100 rounded-lg p-4 border border-orange-200">
-                    <div className="flex items-center justify-between">
+                  <div className="bg-orange-50 from-orange-50 to-orange-100 rounded-lg px-3.5 py-3.5 border border-orange-200">
+                    <div className="flex min-h-11 items-center justify-between gap-2">
                       <div>
-                        <p className="text-sm text-orange-700 font-medium">
+                        <p className="text-xs/4 text-orange-700 font-medium">
                           {tPeriod("fields.period")}
                         </p>
-                        <p className="text-xl font-bold text-orange-900 mt-1">
-                          {dateFormat(new Date(period.start_period || 0))}{" "}
-                          {" - "}
-                          {dateFormat(new Date(period.end_period || 0))}
+                        <p className="text-sm/5 font-bold text-orange-900">
+                          <span className="whitespace-nowrap">{dateFormat(new Date(period.start_period || 0))}{" - "}</span>{" "}
+                          <span className="whitespace-nowrap">{dateFormat(new Date(period.end_period || 0))}</span>
                         </p>
                       </div>
-                      <div className="bg-orange-200 p-2 rounded-lg">
+                      <div className="bg-orange-200 flex size-8 shrink-0 items-center justify-center rounded-lg">
                         <Icon
                           icon="solar:calendar-outline"
                           className="text-orange-700 text-xl"
@@ -268,7 +282,7 @@ export default function ViewPeriodPage() {
                   </div>
                 </section>
                 <button
-                  className="flex w-full items-center justify-center mt-4"
+                  className="mt-2 flex w-full items-center justify-center"
                   onClick={() => setHideHeader(!hideHeader)}
                 >
                   <Icon icon="icon-park-outline:up" fontSize={20} />
@@ -278,7 +292,7 @@ export default function ViewPeriodPage() {
           )}
         </AnimatePresence>
 
-        <section className="page-gutter overflow-y-auto flex-1 space-y-3 pb-10">
+        <section className="page-gutter flex-1 space-y-3 pb-10 @4xl:min-h-0 @4xl:overflow-y-auto">
           <div hidden={!hideHeader} className={`bg-white py-3 sticky top-0`}>
             <button
               className={`flex w-full items-center justify-center rotate-180  transition-all `}
@@ -442,9 +456,14 @@ export default function ViewPeriodPage() {
             </div>
           </section>
           <div className="space-y-3">
-            {filtered.map((b) => {
-              return <SummaryCard key={b.entry.id} breakdown={b} />;
-            })}
+            {filtered.map((b) => (
+              <SummaryCard
+                key={b.entry.id}
+                breakdown={b}
+                onViewPayslip={finalized ? () => setPayslipEntryId(b.entry.id) : undefined}
+                payslipDisabled={payslipActionsDisabled}
+              />
+            ))}
             <SummarySection breakdowns={filtered} />
           </div>
         </section>

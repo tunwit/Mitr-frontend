@@ -5,6 +5,10 @@ import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { PeriodFilterContextDTO } from "@/types/type.period";
 import { EntryBreakDownDTO } from "@/types/type.entry";
 import { getLocalizedName } from "@/lib/getLocalizedName";
+import {
+  SALARY_PAYMENT_METHODS,
+  type SalaryPaymentMethod,
+} from "@/types/enum/enum.employee";
 
 /* ---------------- TYPES ---------------- */
 
@@ -25,6 +29,13 @@ type FilterRule =
       field: BooleanField;
       operator: "eq" | "neq";
       value: boolean;
+    }
+  | {
+      id: string;
+      type: "paymentMethod";
+      field: "currentPreferredPaymentMethod";
+      operator: "eq" | "neq";
+      value: SalaryPaymentMethod | "unset";
     };
 
 type FieldOption = {
@@ -43,7 +54,7 @@ const numberOperators: NumberOperator[] = [
   "lt",
   "lte",
 ];
-const booleanOperators = ["eq", "neq"] as const;
+const equalityOperators = ["eq", "neq"] as const;
 
 const isBooleanField = (field: string): field is BooleanField =>
   field === "paid" || field === "currentSocialSecurityCoverage";
@@ -180,6 +191,7 @@ export default function AdvancedFilters<T extends { id: number }>({
   const [appliedFilters, setAppliedFilters] = useState<FilterRule[]>([]);
 
   const t = useTranslations("period");
+  const paymentMethod = useTranslations("employees.preferred_payment_method");
 
   /* ---------------- FILTER LOGIC ---------------- */
 
@@ -193,6 +205,11 @@ export default function AdvancedFilters<T extends { id: number }>({
       const valueMap = buildValueMap(e);
 
       return filters.every((filter) => {
+        if (filter.type === "paymentMethod") {
+          const matches = (e.currentPreferredPaymentMethod ?? "unset") === filter.value;
+          return filter.operator === "eq" ? matches : !matches;
+        }
+
         const value = valueMap[filter.field];
         if (filter.type === "boolean") {
           if (typeof value !== "boolean") return false;
@@ -245,6 +262,11 @@ export default function AdvancedFilters<T extends { id: number }>({
     { id: "totalDeduction", name: "รายหัก", nameEng: "Deductions" },
     { id: "net", name: "ยอดสุทธิ", nameEng: "Net" },
     { id: "paid", name: "จ่ายเเล้ว", nameEng: "Paid" },
+    {
+      id: "currentPreferredPaymentMethod",
+      name: paymentMethod("label"),
+      nameEng: paymentMethod("label"),
+    },
     {
       id: "currentSocialSecurityCoverage",
       name: t("filters.current_social_security"),
@@ -314,7 +336,7 @@ export default function AdvancedFilters<T extends { id: number }>({
               {numberOperatorsSymbol[a.operator]}{" "}
               {a.type === "boolean"
                 ? t(a.value ? "filters.yes" : "filters.no")
-                : a.value}
+                : a.type === "paymentMethod" ? paymentMethod(a.value) : a.value}
             </p>
             <button
               onClick={() => {
@@ -365,14 +387,21 @@ export default function AdvancedFilters<T extends { id: number }>({
                     className="text-sm flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     onChange={(e) => {
                       const field = e.target.value;
-                      if (isBooleanField(field)) {
+                      if (field === "currentPreferredPaymentMethod") {
+                        updateFilter(filter.id, {
+                          field,
+                          type: "paymentMethod",
+                          operator: "eq",
+                          value: "bank_transfer",
+                        });
+                      } else if (isBooleanField(field)) {
                         updateFilter(filter.id, {
                           field,
                           type: "boolean",
                           operator: "eq",
                           value: true,
                         });
-                      } else if (filter.type === "boolean") {
+                      } else if (filter.type !== "number") {
                         updateFilter(filter.id, {
                           field,
                           type: "number",
@@ -404,7 +433,7 @@ export default function AdvancedFilters<T extends { id: number }>({
                       })
                     }
                   >
-                    {(filter.type === "boolean" ? booleanOperators : numberOperators).map((op) => (
+                    {(filter.type === "number" ? numberOperators : equalityOperators).map((op) => (
                       <option key={op} value={op}>
                         {numberOperatorsSymbol[op]} (
                         {t(`filters.operator.${op}`)})
@@ -425,6 +454,22 @@ export default function AdvancedFilters<T extends { id: number }>({
                     >
                       <option value="true">{t("filters.yes")}</option>
                       <option value="false">{t("filters.no")}</option>
+                    </select>
+                  ) : filter.type === "paymentMethod" ? (
+                    <select
+                      aria-label={paymentMethod("label")}
+                      className="text-sm w-40 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      value={filter.value}
+                      onChange={(e) =>
+                        updateFilter(filter.id, {
+                          value: e.target.value as SalaryPaymentMethod | "unset",
+                        })
+                      }
+                    >
+                      {SALARY_PAYMENT_METHODS.map((method) => (
+                        <option key={method} value={method}>{paymentMethod(method)}</option>
+                      ))}
+                      <option value="unset">{paymentMethod("unset")}</option>
                     </select>
                   ) : (
                     <NativeInput

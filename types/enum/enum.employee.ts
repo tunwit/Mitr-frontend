@@ -4,6 +4,9 @@ export enum EMPLOYEE_STATUS {
   PARTTIME = "PARTTIME",
 }
 
+export const SALARY_PAYMENT_METHODS = ["cash", "bank_transfer"] as const;
+export type SalaryPaymentMethod = (typeof SALARY_PAYMENT_METHODS)[number];
+
 export enum EMPLOYEE_SORTBY {
   NAME = "NAME",
   SALARY = "SALARY",

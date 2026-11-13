@@ -160,8 +160,11 @@ export function useUpdateEmployee() {
         body: payload,
       }),
 
-    onSuccess: () => {
+    onSuccess: (_, { payload }) => {
       queryClient.invalidateQueries({ queryKey: ["employees"], exact: false });
+      if (payload.preferredPaymentMethod !== undefined) {
+        queryClient.invalidateQueries({ queryKey: ["period", shopId] });
+      }
     },
   });
 }

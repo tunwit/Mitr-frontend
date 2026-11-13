@@ -19,6 +19,7 @@ import { ZodForm } from "@/lib/useZodForm";
 import dayjs from "dayjs";
 import DatePickerLocalize from "@/widget/DatePickerLocalize";
 import { useTranslations } from "next-intl";
+import PreferredPaymentMethodField from "../PreferredPaymentMethodField";
 import SocialSecurityFields from "../SocialSecurityFields";
 
 interface ContractFormProps {
@@ -87,6 +88,10 @@ export default function ContractForm({ setCurrentPage }: ContractFormProps) {
               )}
             />
           </FormControl>
+        </div>
+
+        <div className="col-span-2">
+          <PreferredPaymentMethodField />
         </div>
 
         <div className="col-span-1 ">

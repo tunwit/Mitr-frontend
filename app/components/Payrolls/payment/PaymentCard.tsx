@@ -34,6 +34,7 @@ export default function PaymentCard({
   const te = useTranslations("employees");
   const tr = useTranslations("record");
   const tp = useTranslations("payment_payroll");
+  const paymentMethod = useTranslations("employees.preferred_payment_method");
 
   const locale = useLocale();
   const [copiedId, setCopiedId] = useState("");
@@ -75,6 +76,14 @@ export default function PaymentCard({
                 {breakdown.entry.employee.snapshot.firstName}{" "}
                 {breakdown.entry.employee.snapshot.lastName}
               </h3>
+              <p className="mt-1 text-xs text-gray-600">
+                {paymentMethod("label")} ·{" "}
+                <span className="font-medium text-gray-900">
+                  {paymentMethod(
+                    breakdown.currentPreferredPaymentMethod ?? "unset",
+                  )}
+                </span>
+              </p>
               <span className="flex items-center gap-2">
                 <p className="text-xs text-gray-600">
                   {paymentDetails.bankName} •{" "}

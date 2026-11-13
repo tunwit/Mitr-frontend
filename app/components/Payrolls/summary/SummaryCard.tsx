@@ -9,21 +9,25 @@ import { useLocale, useTranslations } from "next-intl";
 import { getLocalizedName } from "@/lib/getLocalizedName";
 import ChangableAvatar from "@/widget/ChangableAvatar";
 import { EntryBreakDownDTO } from "@/types/type.entry";
+import Button from "@mui/joy/Button";
 
 interface SummaryCardProps {
   breakdown: EntryBreakDownDTO;
+  onViewPayslip?: () => void;
+  payslipDisabled?: boolean;
 }
 
-export default function SummaryCard({ breakdown }: SummaryCardProps) {
+export default function SummaryCard({ breakdown, onViewPayslip, payslipDisabled }: SummaryCardProps) {
   const [expanded, setExpanded] = useState(false);
   const t = useTranslations("record");
+  const tPayslip = useTranslations("view_payroll.generate.action");
   const locale = useLocale();
   return (
     <div className="space-y-4">
       <div className="hover:shadow bg-white rounded-lg border border-gray-200 overflow-hidden">
         {/* Employee Header */}
         <div
-          className="bg-gray-50 px-6 py-4 border-b border-gray-200 grid grid-cols-[1fr_auto] gap-4 items-center cursor-pointer"
+          className={`bg-gray-50 px-6 py-4 border-b border-gray-200 grid gap-4 items-center cursor-pointer ${onViewPayslip ? "md:grid-cols-[1fr_auto]" : "grid-cols-[1fr_auto]"}`}
           onClick={() => setExpanded(!expanded)}
         >
           <div className="grid grid-cols-[auto_1fr] gap-4 items-center">
@@ -48,7 +52,7 @@ export default function SummaryCard({ breakdown }: SummaryCardProps) {
             </div>
           </div>
 
-          <div className="flex gap-5 items-center">
+          <div className="flex flex-wrap justify-end gap-3 sm:gap-5 items-center">
             <span
               hidden={!breakdown.entry.paidAt}
               className="flex text-green-600 text-xs gap-1 items-center self-baseline-last bg-green-100 px-2 py-1 rounded-lg border border-green-600"
@@ -63,6 +67,19 @@ export default function SummaryCard({ breakdown }: SummaryCardProps) {
                 ฿ {moneyFormat(breakdown.calculation.netPay)}
               </p>
             </div>
+            {onViewPayslip && (
+              <Button
+                variant="outlined"
+                aria-haspopup="dialog"
+                disabled={payslipDisabled}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onViewPayslip();
+                }}
+              >
+                {tPayslip("preview")}
+              </Button>
+            )}
             <Icon
               icon="mingcute:down-line"
               fontSize={30}

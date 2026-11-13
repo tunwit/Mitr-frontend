@@ -202,6 +202,12 @@
     }
   },
   "employees": {
+    "preferred_payment_method": {
+      "label": "วิธีจ่าย",
+      "cash": "เงินสด",
+      "bank_transfer": "โอนธนาคาร",
+      "unset": "ไม่ระบุ"
+    },
     "label": "พนักงาน",
     "tabs": {
       "details": "รายละเอียด",
@@ -697,6 +703,10 @@
         "close": "ปิด"
       },
       "history": {
+        "title": "ประวัติสลิปเงินเดือน",
+        "description": "เมื่อมีการแก้ไขเงินเดือน สลิปฉบับก่อนหน้าจะเก็บไว้ที่นี่",
+        "current_badge": "ล่าสุด",
+        "previous_badge": "ก่อนหน้า",
         "current": "ฉบับที่ {version} · ปัจจุบัน · {date}",
         "revision": "ฉบับที่ {version}",
         "earlier": "{count} ฉบับก่อนหน้า",

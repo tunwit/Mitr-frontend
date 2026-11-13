@@ -15,6 +15,7 @@ import { InputForm } from "@/widget/InputForm";
 import { z } from "zod";
 import { useTranslations } from "next-intl";
 import QRPromptpayModal from "./QRPromptpayModal";
+import PreferredPaymentMethodField from "../PreferredPaymentMethodField";
 import SocialSecurityFields from "../SocialSecurityFields";
 
 export default function EmployeeDetailsForm({
@@ -200,6 +201,7 @@ export default function EmployeeDetailsForm({
                   )}
                 />
               </FormControl>
+              <PreferredPaymentMethodField />
               <FormControl required>
                 <FormLabel>
                   {t("fields.bank")}

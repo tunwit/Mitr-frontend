@@ -23,6 +23,7 @@ const salaryOnly: EntryBreakDownDTO = {
     payslipSent: false,
     paidAt: null,
   },
+  currentPreferredPaymentMethod: null,
   currentSocialSecurityCoverage: null,
   items: { earnings: [], deductions: [], ots: [], penalties: [], non_calculated: [] },
   calculation: {

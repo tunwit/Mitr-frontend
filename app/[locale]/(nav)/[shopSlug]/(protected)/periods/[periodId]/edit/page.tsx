@@ -180,7 +180,7 @@ export default function EditPeriodPage() {
     );
 
   return (
-    <main className=" w-full bg-gray-100 font-medium ">
+    <main className="@container h-full min-w-0 w-full overflow-y-auto bg-gray-100 font-medium">
       <PayrollsAddEmployeeModal
         onApplied={() => {
           uncheckall();
@@ -210,8 +210,8 @@ export default function EditPeriodPage() {
 
       <title>{periodData?.data?.name}</title>
 
-      <div className="flex flex-col h-full">
-        <section className="page-gutter pt-10 pb-5 bg-white w-full border-b border-gray-200 sticky top-0">
+      <div className="flex min-h-full flex-col">
+        <section className="page-gutter w-full border-b border-gray-200 bg-white pt-8 pb-4 @4xl:sticky @4xl:top-0 @4xl:z-20">
           <Breadcrumbs
             items={[
               { label: name },
@@ -220,17 +220,17 @@ export default function EditPeriodPage() {
               { label: tBreadcrumb("edit_payroll") },
             ]}
           />
-          <div className="mt-5 flex flex-row justify-between">
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
             <NativeInput
               value={periodTitle ?? ""}
               onChange={(e) => {
                 hasEditedPeriod.current = true;
                 setPeriodTitle(e.target.value);
               }}
-              className="text-black rounded-md text-3xl font-bold p-2"
+              className="min-w-0 flex-1 basis-56 rounded-md py-0.5 text-3xl/10 font-bold text-black"
             ></NativeInput>
 
-            <div className="flex gap-3 z-10 h-5">
+            <div className="flex flex-wrap items-center gap-2">
               <IconButton
                 color="neutral"
                 variant="outlined"
@@ -263,20 +263,20 @@ export default function EditPeriodPage() {
             </div>
           </div>
 
-          <section className="grid grid-cols-4 gap-4 mt-5">
-            <div className="bg-blue-50 from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
-              <div className="flex items-center justify-between">
+          <section className="mt-4 grid gap-3 @xs:grid-cols-2 @4xl:grid-cols-4">
+            <div className="bg-blue-50 from-blue-50 to-blue-100 rounded-lg px-3.5 py-3.5 border border-blue-200">
+              <div className="flex min-h-11 items-center justify-between gap-2">
                 <div>
-                  <p className="text-sm text-blue-700 font-medium">
+                  <p className="text-xs/4 text-blue-700 font-medium">
                     {tPeriod("fields.status")}
                   </p>
-                  <p className="text-xl font-bold text-blue-900 mt-1">
+                  <p className="text-lg/6 font-bold text-blue-900 [overflow-wrap:anywhere]">
                     {tPeriod(
                       `status.${PAY_PERIOD_STATUS_LABELS[periodData?.data?.status ?? "DRAFT"].toLowerCase()}`,
                     )}
                   </p>
                 </div>
-                <div className="bg-blue-200 p-2 rounded-lg">
+                <div className="bg-blue-200 flex size-8 shrink-0 items-center justify-center rounded-lg">
                   <Icon
                     icon={"mdi:clock-outline"}
                     className="text-blue-700"
@@ -286,33 +286,33 @@ export default function EditPeriodPage() {
               </div>
             </div>
 
-            <div className="bg-purple-50 from-purple-50 to-purple-100 rounded-lg p-4 border border-purple-200">
-              <div className="flex items-center justify-between">
+            <div className="bg-purple-50 from-purple-50 to-purple-100 rounded-lg px-3.5 py-3.5 border border-purple-200">
+              <div className="flex min-h-11 items-center justify-between gap-2">
                 <div>
-                  <p className="text-sm text-purple-700 font-medium">
+                  <p className="text-xs/4 text-purple-700 font-medium">
                     {tPeriod("fields.employees")}
                   </p>
-                  <p className="text-xl font-bold text-purple-900 mt-1">
+                  <p className="text-lg/6 font-bold text-purple-900 [overflow-wrap:anywhere]">
                     {periodData?.data?.employeeCount}
                   </p>
                 </div>
-                <div className="bg-purple-200 p-2 rounded-lg">
+                <div className="bg-purple-200 flex size-8 shrink-0 items-center justify-center rounded-lg">
                   <UsersIcon className="text-purple-700 text-xl" />
                 </div>
               </div>
             </div>
 
-            <div className="bg-green-50 from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
-              <div className="flex items-center justify-between">
+            <div className="bg-green-50 from-green-50 to-green-100 rounded-lg px-3.5 py-3.5 border border-green-200">
+              <div className="flex min-h-11 items-center justify-between gap-2">
                 <div>
-                  <p className="text-sm text-green-700 font-medium">
+                  <p className="text-xs/4 text-green-700 font-medium">
                     {tPeriod("fields.total_amount")}
                   </p>
-                  <p className="text-xl font-bold text-green-900 mt-1">
+                  <p className="text-lg/6 font-bold text-green-900 [overflow-wrap:anywhere]">
                     {moneyFormat(periodData?.data?.netPay || 0)}
                   </p>
                 </div>
-                <div className="bg-green-200 p-2 rounded-lg">
+                <div className="bg-green-200 flex size-8 shrink-0 items-center justify-center rounded-lg">
                   <Icon
                     icon="tabler:currency-baht"
                     className="text-green-700 text-xl"
@@ -323,21 +323,20 @@ export default function EditPeriodPage() {
             </div>
 
             <div
-              className="relative bg-orange-50 from-orange-50 to-orange-100 rounded-lg p-4 border border-orange-200 cursor-pointer"
+              className="relative bg-orange-50 from-orange-50 to-orange-100 rounded-lg px-3.5 py-3.5 border border-orange-200 cursor-pointer"
               onClick={() => setOpenCalendar(true)}
             >
-              <div className="flex items-center justify-between">
+              <div className="flex min-h-11 items-center justify-between gap-2">
                 <div>
-                  <p className="text-sm text-orange-700 font-medium">
+                  <p className="text-xs/4 text-orange-700 font-medium">
                     {tPeriod("fields.period")}
                   </p>
-                  <p className="text-xl font-bold text-orange-900 mt-1">
-                    {dateFormat(new Date(periodData?.data?.start_period || 0))}{" "}
-                    {" - "}
-                    {dateFormat(new Date(periodData?.data?.end_period || 0))}
+                  <p className="text-sm/5 font-bold text-orange-900">
+                    <span className="whitespace-nowrap">{dateFormat(new Date(periodData?.data?.start_period || 0))}{" - "}</span>{" "}
+                    <span className="whitespace-nowrap">{dateFormat(new Date(periodData?.data?.end_period || 0))}</span>
                   </p>
                 </div>
-                <div className="bg-orange-200 p-2 rounded-lg">
+                <div className="bg-orange-200 flex size-8 shrink-0 items-center justify-center rounded-lg">
                   <Icon
                     icon="solar:calendar-outline"
                     className="text-orange-700 text-xl"

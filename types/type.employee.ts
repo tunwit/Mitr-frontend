@@ -1,4 +1,4 @@
-import { EMPLOYEE_STATUS, GENDER } from "./enum/enum.employee";
+import { EMPLOYEE_STATUS, GENDER, type SalaryPaymentMethod } from "./enum/enum.employee";
 import { BranchPublicDTO } from "./type.branch";
 
 //Full schema from DB
@@ -35,6 +35,7 @@ export type EmployeeDetailedDTO = {
   phoneNumber: string;
   dateEmploy: Date | null;
   haveSocialSecurity: boolean;
+  preferredPaymentMethod: SalaryPaymentMethod | null;
   socialSecurityNumber: string | null;
   address1: string | null;
   address2: string | null;
@@ -62,6 +63,7 @@ export type NewEmployeeDTO = {
   dateOfBirth?: string | undefined;
   dateEmploy?: string | undefined;
   haveSocialSecurity?: boolean;
+  preferredPaymentMethod?: SalaryPaymentMethod | null;
   socialSecurityNumber?: string;
   address1?: string | undefined;
   address2?: string | undefined;
