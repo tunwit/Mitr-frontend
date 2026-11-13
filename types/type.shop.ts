@@ -29,7 +29,8 @@ export type ShopConfigDTO = ShopPublicDTO & {
 
   emailName: string | null;
   emailAddress: string | null;
-  emailPassword: string | null;
+  hasSmtpPassword: boolean;
+  hasResendApiKey: boolean;
 };
 
 export type NewShopDTO = {
@@ -59,31 +60,6 @@ export type UpdateShopDataDTO = Partial<{
   emailAddress: string | null;
   emailPassword: string | null;
 }>;
-
-export type SMTPConfig = {
-  SMTPHost: string;
-  SMTPPort: number;
-  SMTPSecure: boolean;
-
-  emailAddress: string;
-  emailPassword: string;
-};
-
-type SMTPConfigWithMethod = {
-  send_email_method: SEND_EMAIL_METHOD.SMTP;
-} & SMTPConfig;
-
-export type ResendConfig = {
-  resendApiKey: string;
-};
-
-type ResendConfigWithMethod = {
-  send_email_method: SEND_EMAIL_METHOD.RESEND;
-} & ResendConfig;
-
-export type VerifyEmailDTO = SMTPConfigWithMethod | ResendConfigWithMethod;
-
-export type VerifyEmailResult = { valid: boolean; error: string };
 
 export type ChangePasswordDTO = {
   oldPassword: string;

@@ -13,8 +13,6 @@ import {
   ShopConfigDTO,
   ShopPublicDTO,
   UpdateShopDataDTO,
-  VerifyEmailDTO,
-  VerifyEmailResult,
 } from "@/types/type.shop";
 
 type UpdateShopDataVars = {
@@ -95,18 +93,6 @@ export function useUpdateShop() {
       queryClient.invalidateQueries({ queryKey: ["shop", "config", shopId] });
       queryClient.invalidateQueries({ queryKey: ["scb-payment", shopId] });
     },
-  });
-}
-
-export function useVerifyEmailConfig() {
-  const { id: shopId } = useCurrentShop();
-  return useMutation<ApiResponse<VerifyEmailResult>, Error, VerifyEmailDTO>({
-    mutationFn: (payload: VerifyEmailDTO) =>
-      fetchwithauth({
-        endpoint: `/shops/${shopId}/email/verify`,
-        method: "POST",
-        body: payload,
-      }),
   });
 }
 

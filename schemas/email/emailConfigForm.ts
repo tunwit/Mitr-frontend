@@ -1,22 +1,19 @@
 import { z } from "zod";
 
+const sender = {
+  emailName: z.string().max(255).regex(/^[^\r\n]*$/),
+  emailAddress: z.string().trim().email().max(255),
+};
+
 export const SMTPEmailConfigForm = z.object({
-  SMTPHost: z.string().max(255, "SMTPHost cannot exceed 255 charecter"),
-  SMTPPort: z.number(),
+  ...sender,
+  SMTPHost: z.string().trim().min(1).max(50),
+  SMTPPort: z.number().int().min(1).max(65535),
   SMTPSecure: z.boolean(),
-  emailName: z.string().max(255, "Email Name cannot exceed 255 charecter"),
-  emailAddress: z
-    .string()
-    .max(255, "Email Address cannot exceed 255 charecter"),
-  emailPassword: z
-    .string()
-    .max(255, "Email Password cannot exceed 255 charecter"),
+  emailPassword: z.string().max(255).optional(),
 });
 
 export const ResendEmailConfigForm = z.object({
-  resend_api_key: z.string().max(255, "api key cannot exceed 255 charecter"),
-  emailName: z.string().max(255, "Email Name cannot exceed 255 charecter"),
-  emailAddress: z
-    .string()
-    .max(255, "Email Address cannot exceed 255 charecter"),
+  ...sender,
+  resend_api_key: z.string().trim().max(255).optional(),
 });

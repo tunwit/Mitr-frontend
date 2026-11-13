@@ -163,10 +163,19 @@
       "email_config": "Email Settings"
     },
     "info": {
+      "email_saved": "Email settings verified and saved",
+      "email_save_failed": "Could not verify or save email settings. Check your settings and try again.",
+      "keep_credential": "Leave blank to keep the saved credential",
+      "smtp_password_required": "Enter the SMTP password for these settings",
       "valid_email": "This email is valid and ready to use",
       "invalid_email": "Unable to verify this email due to {err}"
     },
     "fields": {
+      "email_provider": "Email provider",
+      "resend_api_key": "Resend API key",
+      "smtp_host": "SMTP host",
+      "smtp_port": "SMTP port",
+      "smtp_tls": "SMTP encryption",
       "title": "Shop name",
       "tax_id": "Tax identification number",
       "work_hour_per_day": "Working hours / day",
