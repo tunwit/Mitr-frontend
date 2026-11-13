@@ -210,7 +210,8 @@ export default function AdvancedFilters<T extends { id: number }>({
           return filter.operator === "eq" ? matches : !matches;
         }
 
-        const value = valueMap[filter.field];
+        const value = valueMap[filter.field] ??
+          (filter.type === "number" && context?.fields.some(({ nameEng }) => nameEng === filter.field) ? 0 : undefined);
         if (filter.type === "boolean") {
           if (typeof value !== "boolean") return false;
           return filter.operator === "eq"

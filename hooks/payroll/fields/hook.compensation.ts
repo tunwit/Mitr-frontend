@@ -41,6 +41,7 @@ export const useCompensationField = (
     queryKey: ["compensation", type.toString(), shopId],
     queryFn: () => getField(shopId, type),
     enabled: shopId != null && enabled,
+    refetchOnMount: "always",
     refetchOnWindowFocus: false,
     staleTime: 1000 * 60 * 5,
   });
@@ -96,7 +97,10 @@ export function useDeleteCompensationField() {
         body: { ids: ids },
       }),
 
-    onSuccess: () => {
+    onSuccess: (_, { shopId }) => {
+      for (const resource of ["entries", "period", "periods", "preview", "employee-payroll-defaults"]) {
+        void queryClient.invalidateQueries({ queryKey: [resource, shopId] });
+      }
       queryClient.invalidateQueries({
         queryKey: ["compensation"],
         exact: false,

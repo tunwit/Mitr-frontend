@@ -4,6 +4,7 @@ import { PENALTY_METHOD, PENALTY_TYPE } from "../enum/enum.penalty";
 
 export type PenaltyFieldPublicDTO = {
   id: number;
+  code: string;
   name: string;
   nameEng: string;
   type: PENALTY_TYPE;
@@ -21,6 +22,7 @@ export type NewPenaltyFieldDTO = {
 
 export type PenaltyValuePublicDTO = {
   id: number;
+  code: string;
   name: string;
   nameEng: string;
   type: PENALTY_TYPE;

@@ -1,3 +1,5 @@
+import type { OT_METHOD, OT_TYPE } from "./enum/enum.ot";
+import type { PENALTY_METHOD, PENALTY_TYPE } from "./enum/enum.penalty";
 import type { SalaryPaymentMethod } from "./enum/enum.employee";
 import { CompensationValuePublicDTO } from "./payroll/type.compensation";
 import { OTValuePublicDTO } from "./payroll/type.ot";
@@ -64,20 +66,28 @@ export type UpdatePaidDTO = {
   paid: boolean;
 };
 
+export type LineChange<Key extends "amount" | "value"> =
+  | ({ id: number } & Record<Key, string | null>)
+  | ({ fieldId: number } & Record<Key, string>);
+
+type OneOffRate<Salary, Fixed> =
+  | { type: Salary }
+  | { type: Fixed; fixedAmount: string };
+
+export type OneOffPayrollLine = { requestId: string; name: string } & (
+  | { group: "earnings" | "deductions" | "non_calculated"; amount: string }
+  | { group: "ots"; value: string; method: OT_METHOD; multiplier: string; rate: OneOffRate<OT_TYPE.BASEDONSALARY, OT_TYPE.CONSTANT> }
+  | { group: "penalties"; value: string; method: PENALTY_METHOD; rate: OneOffRate<PENALTY_TYPE.BASEDONSALARY, PENALTY_TYPE.CONSTANT> }
+);
+
 export type UpdateBreakDownDTO = {
-  entry: {
-    salary?: EntryPublicDTO["salary"];
-    note?: EntryPublicDTO["note"];
-  };
+  oneOffLine?: OneOffPayrollLine;
+  entry: { salary?: string; note?: string };
   items: {
-    earnings?: Pick<CompensationValuePublicDTO, "id" | "amount">[] | undefined;
-    deductions?:
-      | Pick<CompensationValuePublicDTO, "id" | "amount">[]
-      | undefined;
-    non_calculated?:
-      | Pick<CompensationValuePublicDTO, "id" | "amount">[]
-      | undefined;
-    ots?: Pick<OTValuePublicDTO, "id" | "value">[] | undefined;
-    penalties?: Pick<PenaltyValuePublicDTO, "id" | "value">[] | undefined;
+    earnings?: LineChange<"amount">[];
+    deductions?: LineChange<"amount">[];
+    non_calculated?: LineChange<"amount">[];
+    ots?: LineChange<"value">[];
+    penalties?: LineChange<"value">[];
   };
 };

@@ -110,6 +110,24 @@ export default function PayrollSummaryTab({
           </tr>
         </tfoot>
       </Table>
+      {breakdown.items.non_calculated.length > 0 && (
+        <Table aria-label={t("edit.tabs.display_only")} borderAxis="both" sx={{ mt: 2 }}>
+          <thead>
+            <tr>
+              <th>{t("edit.tabs.display_only")}</th>
+              <th>{t("edit.fields.amount")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {breakdown.items.non_calculated.map((item) => (
+              <tr key={item.id}>
+                <td>{item.name}</td>
+                <td>{moneyFormat(item.amount)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      )}
     </>
   );
 }

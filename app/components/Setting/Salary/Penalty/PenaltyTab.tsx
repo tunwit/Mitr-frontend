@@ -1,9 +1,9 @@
+import ConfirmModal from "@/widget/ConfirmModal";
 import { Button } from "@mui/joy";
 import { useState } from "react";
 import { useCheckBox } from "@/hooks/useCheckBox";
 import { useCurrentShop } from "@/hooks/shop/useCurrentShop";
 import { showError, showSuccess } from "@/utils/showSnackbar";
-import { useQueryClient } from "@tanstack/react-query";
 import TableWithCheckBox from "@/widget/TableWIthCheckbox";
 
 import AddEditPenaltyModal from "./AddEditPenaltyModal";
@@ -17,14 +17,15 @@ import { PenaltyFieldPublicDTO } from "@/types/payroll/type.penalty";
 
 export default function PenaltyTab() {
   const [open, setOpen] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const confirmation = useTranslations("confirm_modal");
   const [selectedField, setSelectedField] =
     useState<PenaltyFieldPublicDTO | null>(null);
   const { id: shopId } = useCurrentShop();
   const checkboxMethods = useCheckBox<number>("allPenaltyTable");
-  const { checked, checkall, uncheckall } = checkboxMethods;
+  const { checked, uncheckall } = checkboxMethods;
   const { user } = useUser();
   const t = useTranslations("penalty");
-  const queryClient = useQueryClient();
   const addHandler = () => {
     setSelectedField(null);
 
@@ -32,21 +33,30 @@ export default function PenaltyTab() {
   };
 
   const { data, isLoading, isSuccess } = usePenaltyFields();
-  const { mutateAsync: deleteMutate } = useDeletePenaltyField();
+  const { mutateAsync: deleteMutate, isPending: isDeleting } = useDeletePenaltyField();
 
   const handleDelete = async () => {
     try {
-      if (!shopId || !user?.id) return;
-      uncheckall();
+      if (!shopId || !user?.id || !checked.length) return false;
       await deleteMutate({ shopId: shopId, ids: checked });
+      uncheckall();
       showSuccess("Delete field success");
     } catch {
       showError("Delete field failed");
+      return false;
     }
   };
 
   return (
     <>
+      <ConfirmModal
+        title={confirmation("delete_payroll_fields")}
+        description={confirmation("delete_payroll_fields_description")}
+        open={confirmDelete}
+        setOpen={setConfirmDelete}
+        onConfirm={handleDelete}
+        isPending={isDeleting}
+      />
       <div className="-mt-4">
         <AddEditPenaltyModal
           open={open}
@@ -66,7 +76,7 @@ export default function PenaltyTab() {
             <Button
               disabled={checked ? checked.length === 0 : true}
               variant="plain"
-              onClick={handleDelete}
+              onClick={() => setConfirmDelete(true)}
             >
               <p className="underline font-medium"> {t("actions.delete")}</p>
             </Button>

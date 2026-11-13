@@ -4,6 +4,7 @@ import { OT_METHOD, OT_TYPE } from "../enum/enum.ot";
 
 export type OTFieldPublicDTO = {
   id: number;
+  code: string;
   name: string;
   nameEng: string;
   type: OT_TYPE;
@@ -23,6 +24,7 @@ export type NewOTFieldDTO = {
 
 export type OTValuePublicDTO = {
   id: number;
+  code: string;
   name: string;
   nameEng: string;
   type: OT_TYPE;

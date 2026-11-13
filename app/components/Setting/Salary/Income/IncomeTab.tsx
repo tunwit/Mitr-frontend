@@ -1,9 +1,9 @@
+import ConfirmModal from "@/widget/ConfirmModal";
 import { Button } from "@mui/joy";
 import React, { useState } from "react";
 import { useCheckBox } from "@/hooks/useCheckBox";
 import { useCurrentShop } from "@/hooks/shop/useCurrentShop";
 import { showError, showSuccess } from "@/utils/showSnackbar";
-import { useQueryClient } from "@tanstack/react-query";
 import AddEditIncomeModal from "./AddEditIncomeModal";
 import TableWithCheckBox from "@/widget/TableWIthCheckbox";
 import { useUser } from "@clerk/nextjs";
@@ -16,15 +16,16 @@ import {
 import { COMPEN_FIELD_DEFINATION_TYPE } from "@/types/enum/enum.compensation";
 export default function IncomeTab() {
   const [open, setOpen] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const confirmation = useTranslations("confirm_modal");
   const [selectedField, setSelectedField] =
     useState<CompensationFieldPublicDTO | null>(null);
   const { id: shopId } = useCurrentShop();
   const checkboxMethods = useCheckBox<number>("allIncomeTable");
-  const { checked, checkall, uncheckall } = checkboxMethods;
+  const { checked, uncheckall } = checkboxMethods;
   const { user } = useUser();
   const t = useTranslations("earning");
-  const queryClient = useQueryClient();
-  const { mutateAsync: deleteMutate } = useDeleteCompensationField();
+  const { mutateAsync: deleteMutate, isPending: isDeleting } = useDeleteCompensationField();
 
   const addHandler = () => {
     setSelectedField(null);
@@ -36,17 +37,26 @@ export default function IncomeTab() {
 
   const handleDelete = async () => {
     try {
-      if (!shopId || !user?.id) return;
-      uncheckall();
+      if (!shopId || !user?.id || !checked.length) return false;
       await deleteMutate({ shopId: shopId, ids: checked });
+      uncheckall();
       showSuccess("Delete field success");
     } catch {
       showError("Delete field failed");
+      return false;
     }
   };
 
   return (
     <>
+      <ConfirmModal
+        title={confirmation("delete_payroll_fields")}
+        description={confirmation("delete_payroll_fields_description")}
+        open={confirmDelete}
+        setOpen={setConfirmDelete}
+        onConfirm={handleDelete}
+        isPending={isDeleting}
+      />
       <div className="-mt-4">
         <AddEditIncomeModal
           open={open}
@@ -63,7 +73,7 @@ export default function IncomeTab() {
             <Button
               disabled={checked ? checked.length === 0 : true}
               variant="plain"
-              onClick={handleDelete}
+              onClick={() => setConfirmDelete(true)}
             >
               <p className="underline font-medium">{t("actions.delete")}</p>
             </Button>

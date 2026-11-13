@@ -20,7 +20,7 @@ type DeleteFieldVars = {
   ids: number[];
 };
 
-export const useOTFields = () => {
+export const useOTFields = (enabled = true) => {
   const { id: shopId } = useCurrentShop();
 
   const query = useQuery<ApiResponse<OTFieldPublicDTO[]>>({
@@ -30,7 +30,8 @@ export const useOTFields = () => {
         endpoint: `/shops/${shopId}/ot-fields`,
         method: "GET",
       }),
-    enabled: shopId != null,
+    enabled: shopId != null && enabled,
+    refetchOnMount: "always",
     refetchOnWindowFocus: false,
     staleTime: 1000 * 60 * 5,
   });
@@ -86,7 +87,10 @@ export function useDeleteOTField() {
         body: { ids: ids },
       }),
 
-    onSuccess: () => {
+    onSuccess: (_, { shopId }) => {
+      for (const resource of ["entries", "period", "periods", "preview", "employee-payroll-defaults"]) {
+        void queryClient.invalidateQueries({ queryKey: [resource, shopId] });
+      }
       queryClient.invalidateQueries({
         queryKey: ["ot"],
         exact: false,

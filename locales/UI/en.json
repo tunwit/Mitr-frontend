@@ -20,6 +20,8 @@
     }
   },
   "confirm_modal": {
+    "delete_payroll_fields": "Delete payroll fields?",
+    "delete_payroll_fields_description": "The selected fields and their saved values will be removed from every draft payroll period in this shop. Finalized payroll keeps its saved values.",
     "actions": {
       "cancel": "Cancel",
       "confirm": "Confirm"
@@ -552,6 +554,25 @@
       "total_payroll": "Total payroll expense"
     },
     "edit": {
+      "one_off": {
+        "add_field": "Add field",
+        "add": "Add",
+        "name": "Field name",
+        "amount": "Amount",
+        "quantity": "Quantity",
+        "unit": "Unit",
+        "hours": "Hours",
+        "days": "Days",
+        "minutes": "Minutes",
+        "rate_type": "Rate type",
+        "fixed_rate": "Fixed rate",
+        "multiplier": "Multiplier",
+        "calculated_amount": "Calculated amount {amount}",
+        "invalid_name": "Enter a field name up to 50 characters.",
+        "invalid_decimal": "Enter a number with up to 8 digits before the decimal point and 2 after it.",
+        "invalid_rate": "Enter a positive rate with up to 2 decimal places.",
+        "save_failed": "Could not add the field. Try again."
+      },
       "label": "Payroll details",
       "load": {
         "loading": "Loading data"

@@ -1,6 +1,5 @@
 import { expect, test } from "bun:test";
 import React from "react";
-import Decimal from "decimal.js";
 import { renderToStaticMarkup } from "react-dom/server";
 import { NextIntlClientProvider } from "next-intl";
 import messages from "@/locales/UI/en.json";
@@ -10,22 +9,21 @@ import PayrollTable from "./PayrollTable";
 
 for (const [changes, showIncomeRow, expected] of [
   [{}, false, "1,500.00"],
-  [{ 1: { amount: 1200 } }, false, "1,700.00"],
-  [{ 1: { amount: 0 } }, false, "500.00"],
-  [{ 1: { amount: 1200 } }, true, "23,700.00"],
+  [{ first: "1200" }, false, "1,700.00"],
+  [{ first: "0" }, false, "500.00"],
+  [{ first: "1200" }, true, "23,700.00"],
+  [{ first: "" }, false, "500.00"],
 ] as const) {
   test(`table subtotal includes saved rows and edits: ${expected}`, () => {
     const html = renderToStaticMarkup(
       <NextIntlClientProvider locale="en" messages={messages} timeZone="Asia/Bangkok">
         <PayrollTable
-          data={[{ id: 1, amount: 1000 }, { id: 2, amount: 500 }]}
+          data={[{ code: "first", amount: "1000" }, { code: "second", amount: "500" }, { code: "new", amount: "" }]}
           renderName={() => "Earning"}
-          renderAmount={(row) => row.amount}
-          amountValues={changes}
-          setInputValues={() => {}}
-          setIsDirty={() => {}}
-          showIncomeRow={showIncomeRow}
-          baseSalary={new Decimal(22000)}
+          renderInput={(row) => row.amount}
+          changes={changes}
+          onChange={() => {}}
+          salary={showIncomeRow ? { value: "22000", onChange: () => {} } : undefined}
         />
       </NextIntlClientProvider>,
     );

@@ -139,7 +139,6 @@ export function useEntryBreakdown(periodId: number, entryId: number) {
       }),
     enabled: shopId != null && periodId > 0 && entryId > 0,
     refetchOnWindowFocus: true,
-    placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 5,
   });
 
@@ -155,8 +154,8 @@ export function useEntryBreakdown(periodId: number, entryId: number) {
         body: payload,
       });
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey });
+    onSuccess: (response) => {
+      queryClient.setQueryData(queryKey, response);
       queryClient.invalidateQueries({ queryKey: queryKeyList });
       queryClient.invalidateQueries({ queryKey: ["period", shopId, periodId] });
       queryClient.invalidateQueries({ queryKey: ["periods", shopId] });
@@ -164,40 +163,6 @@ export function useEntryBreakdown(periodId: number, entryId: number) {
   });
 
   return { get, update };
-}
-
-export function useEntrySlip(periodId: number) {
-  const { id: shopId } = useCurrentShop();
-  const queryKey = ["entries", shopId, periodId, "pay-slip"];
-  const queryClient = useQueryClient();
-  const get = (entryId: number) =>
-    useMutation({
-      mutationFn: async () => {
-        const res = (await fetchwithauth({
-          endpoint: `/shops/${shopId}/periods/${periodId}/entries/${entryId}/pay-slip`,
-          method: "GET",
-          responseType: "blob",
-        })) as Response;
-        const blob = await res.blob();
-        const disposition = res.headers.get("Content-Disposition");
-        const filename =
-          disposition?.match(/filename="?(.+?)"?$/)?.[1] ?? "payslip.zip";
-
-        return { blob, filename };
-      },
-      onSuccess: ({ blob, filename }) => {
-        const url = window.URL.createObjectURL(blob);
-
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = filename;
-        a.click();
-
-        window.URL.revokeObjectURL(url);
-      },
-    });
-
-  return { get };
 }
 
 export const usePreviewSlip = (periodId: number, entryId: number, revisionId?: string) => {

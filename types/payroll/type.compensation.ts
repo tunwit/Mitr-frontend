@@ -4,6 +4,7 @@ import {
 
 export type CompensationFieldPublicDTO = {
   id: number;
+  code: string;
   name: string;
   nameEng: string;
   type: COMPEN_FIELD_DEFINATION_TYPE;
@@ -18,6 +19,7 @@ export type NewCompensationFieldDTO = {
 
 export type CompensationValuePublicDTO = {
   id: number;
+  code: string;
   name: string;
   nameEng: string;
   type: COMPEN_FIELD_DEFINATION_TYPE;

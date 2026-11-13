@@ -23,7 +23,7 @@ type DeleteFieldVars = {
   ids: number[];
 };
 
-export const usePenaltyFields = () => {
+export const usePenaltyFields = (enabled = true) => {
   const { id: shopId } = useCurrentShop();
 
   const query = useQuery<ApiResponse<PenaltyFieldPublicDTO[]>>({
@@ -33,7 +33,8 @@ export const usePenaltyFields = () => {
         endpoint: `/shops/${shopId}/penalty-fields`,
         method: "GET",
       }),
-    enabled: shopId != null,
+    enabled: shopId != null && enabled,
+    refetchOnMount: "always",
     refetchOnWindowFocus: false,
     staleTime: 1000 * 60 * 5,
   });
@@ -89,7 +90,10 @@ export function useDeletePenaltyField() {
         body: { ids: ids },
       }),
 
-    onSuccess: () => {
+    onSuccess: (_, { shopId }) => {
+      for (const resource of ["entries", "period", "periods", "preview", "employee-payroll-defaults"]) {
+        void queryClient.invalidateQueries({ queryKey: [resource, shopId] });
+      }
       queryClient.invalidateQueries({
         queryKey: ["penalty"],
         exact: false,
